@@ -9,6 +9,9 @@ import StatusBadge from '@/components/ui/StatusBadge'
 import ActionMenu from '@/components/ui/ActionMenu'
 import { formatDate } from '@/lib/format'
 import { Eye, CheckCircle2, Ban, Trash2 } from 'lucide-react'
+import Modal from '@/components/ui/Modal'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import FarmerDetailModal from '@/components/admin/FarmerDetailModal'
 
 const PAGE_SIZE = 10
 
@@ -16,6 +19,8 @@ export default function FarmersTable() {
   const { data: farmers, isLoading, isError } = useFarmers()
   const updateStatus = useUpdateFarmerStatus()
   const deleteFarmerMutation = useDeleteFarmer()
+  const [viewingFarmer, setViewingFarmer] = useState(null)
+  const [deletingFarmer, setDeletingFarmer] = useState(null)
 
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -88,7 +93,7 @@ export default function FarmersTable() {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         type="button"
-                        onClick={() => console.log('Review farmer', farmer.id)}
+                        onClick={() => setViewingFarmer(farmer)}
                         className="p-1.5 rounded-md hover:bg-bg-ivory text-text-secondary"
                         aria-label="Review farmer"
                       >
@@ -113,11 +118,7 @@ export default function FarmersTable() {
                             label: 'Remove',
                             icon: Trash2,
                             danger: true,
-                            onClick: () => {
-                              if (confirm(`Remove farmer "${farmer.name}"? This cannot be undone.`)) {
-                                deleteFarmerMutation.mutate(farmer.id)
-                              }
-                            },
+                            onClick: () => setDeletingFarmer(farmer),
                           },
                         ]}
                       />
@@ -131,6 +132,23 @@ export default function FarmersTable() {
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-4" />
         </>
       )}
+      <FarmerDetailModal
+        farmer={viewingFarmer}
+        open={!!viewingFarmer}
+        onClose={() => setViewingFarmer(null)}
+      />
+
+      <ConfirmDialog
+        open={!!deletingFarmer}
+        onClose={() => setDeletingFarmer(null)}
+        onConfirm={() => {
+          deleteFarmerMutation.mutate(deletingFarmer.id)
+          setDeletingFarmer(null)
+        }}
+        title="Remove Farmer"
+        description={`Remove "${deletingFarmer?.name}"? This cannot be undone.`}
+        confirmLabel="Remove"
+      />
     </Surface>
   )
 }

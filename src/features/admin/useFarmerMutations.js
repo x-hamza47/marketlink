@@ -12,7 +12,9 @@ export function useUpdateFarmerStatus() {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FARMERS] })
       toast.success(`Farmer ${variables.status === 'approved' ? 'approved' : variables.status}`)
     },
-    onError: () => toast.error('Failed to update farmer status.'),
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to update farmer status.')
+    }
   })
 }
 
