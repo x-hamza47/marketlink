@@ -6,12 +6,16 @@ import SearchInput from '@/components/ui/SearchInput'
 import Pagination from '@/components/ui/Pagination'
 import StatusBadge from '@/components/ui/StatusBadge'
 import { formatCurrency, formatDate } from '@/lib/format'
-import { Eye, MoreHorizontal } from 'lucide-react'
+import { Eye, Pencil, Trash2, CheckCircle2, XCircle } from 'lucide-react'
+import ActionMenu from '@/components/ui/ActionMenu'
+import { useUpdateOrderStatus, useDeleteOrder } from '@/features/admin/useOrderMutations'
 
 const PAGE_SIZE = 5
 
 export default function RecentOrdersTable() {
   const { data: orders, isLoading, isError } = useRecentOrders()
+  const updateStatus = useUpdateOrderStatus()
+  const deleteOrderMutation = useDeleteOrder()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
 
@@ -87,18 +91,42 @@ export default function RecentOrdersTable() {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         type="button"
+                        onClick={() => console.log('View order', order.id)}
                         className="p-1.5 rounded-md hover:bg-bg-ivory text-text-secondary"
                         aria-label="View order"
                       >
                         <Eye className="w-4 h-4" strokeWidth={1.75} />
                       </button>
-                      <button
-                        type="button"
-                        className="p-1.5 rounded-md hover:bg-bg-ivory text-text-secondary"
-                        aria-label="More actions"
-                      >
-                        <MoreHorizontal className="w-4 h-4" strokeWidth={1.75} />
-                      </button>
+                      <ActionMenu
+                        actions={[
+                          {
+                            label: 'Edit Order',
+                            icon: Pencil,
+                            onClick: () => console.log('Navigate to edit page for', order.id), // real nav once routing exists
+                          },
+                          {
+                            label: 'Mark Ready',
+                            icon: CheckCircle2,
+                            onClick: () => updateStatus.mutate({ orderId: order.id, status: 'ready_for_pickup' }),
+                          },
+                          {
+                            label: 'Cancel Order',
+                            icon: XCircle,
+                            danger: true,
+                            onClick: () => updateStatus.mutate({ orderId: order.id, status: 'cancelled' }),
+                          },
+                          {
+                            label: 'Delete',
+                            icon: Trash2,
+                            danger: true,
+                            onClick: () => {
+                              if (confirm(`Delete order #${order.id}? This cannot be undone.`)) {
+                                deleteOrderMutation.mutate(order.id)
+                              }
+                            },
+                          },
+                        ]}
+                      />
                     </div>
                   </Table.Cell>
                 </Table.Row>

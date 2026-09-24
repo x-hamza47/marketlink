@@ -113,3 +113,95 @@ export async function getRecentOrders() {
     setTimeout(() => resolve(MOCK_RECENT_ORDERS), 300)
   })
 }
+
+// ================= Order actions (mutations) =================
+
+/**
+ * Backend endpoint (planned): PATCH /admin/orders/:id/status
+ */
+export async function updateOrderStatus(orderId, status) {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.patch(`/admin/orders/${orderId}/status`, { status })
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ id: orderId, status }), 300)
+  })
+}
+
+/**
+ * Backend endpoint (planned): DELETE /admin/orders/:id
+ */
+export async function deleteOrder(orderId) {
+  // --- LIVE API CALL ---
+  // await axiosClient.delete(`/admin/orders/${orderId}`)
+  // return { id: orderId }
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ id: orderId }), 300)
+  })
+}
+
+// ================= Farmers management =================
+const MOCK_FARMERS = [
+  { id: 'FRM-101', name: 'Tariq Mehmood', stall: 'Green Valley Farms', markets: 2, registered: '2026-03-14', status: 'approved' },
+  { id: 'FRM-102', name: 'Sana Iqbal', stall: 'Sunrise Organics', markets: 1, registered: '2026-05-02', status: 'approved' },
+  { id: 'FRM-103', name: 'Waqas Ahmed', stall: 'Farmhouse Fresh', markets: 3, registered: '2026-06-19', status: 'approved' },
+  { id: 'FRM-104', name: 'Zainab Malik', stall: 'Coastal Greens', markets: 1, registered: '2026-08-01', status: 'pending' },
+  { id: 'FRM-105', name: 'Hassan Raza', stall: 'Orchard & Co.', markets: 2, registered: '2026-08-20', status: 'pending' },
+  { id: 'FRM-106', name: 'Nadia Sheikh', stall: 'Herb & Root', markets: 1, registered: '2026-04-11', status: 'suspended' },
+  { id: 'FRM-107', name: 'Imran Baig', stall: 'Golden Harvest', markets: 2, registered: '2026-07-08', status: 'approved' },
+]
+
+/**
+ * Backend endpoint (planned): GET /admin/farmers
+ */
+export async function getFarmers() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/farmers')
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(MOCK_FARMERS), 300)
+  })
+}
+
+/**
+ * Backend endpoint (planned): PATCH /admin/farmers/:id/status
+ * status: 'approved' | 'suspended' | 'rejected'
+ */
+export async function updateFarmerStatus(farmerId, status) {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.patch(`/admin/farmers/${farmerId}/status`, { status })
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const farmer = MOCK_FARMERS.find((f) => f.id === farmerId)
+      if (farmer) farmer.status = status
+      resolve({ id: farmerId, status })
+    }, 300)
+  })
+}
+
+/**
+ * Backend endpoint (planned): DELETE /admin/farmers/:id
+ */
+export async function deleteFarmer(farmerId) {
+  // --- LIVE API CALL ---
+  // await axiosClient.delete(`/admin/farmers/${farmerId}`)
+  // return { id: farmerId }
+
+  // --- STATIC MOCK ---
+return new Promise((resolve) => {
+    setTimeout(() => {
+      const index = MOCK_FARMERS.findIndex((f) => f.id === farmerId)
+      if (index !== -1) MOCK_FARMERS.splice(index, 1)
+      resolve({ id: farmerId })
+    }, 300)
+  })
+}
