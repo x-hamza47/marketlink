@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-
 export const useUiStore = create(
   persist(
     (set) => ({
@@ -15,7 +14,7 @@ export const useUiStore = create(
       closeMobileNav: () => set({ isMobileNavOpen: false }),
     }),
     {
-      name: 'marketlink-ui', 
+      name: 'marketlink-ui',
       partialize: (state) => ({ isSidebarCollapsed: state.isSidebarCollapsed }),
     }
   )
