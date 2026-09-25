@@ -7,6 +7,8 @@ export const QUERY_KEYS = {
   REVIEWS: 'reviews',
   MARKETS: 'markets',
   CUSTOMERS: 'customers',
+  CATEGORIES: 'categories',
+  REPORTS: 'reports',
 }
 
 export const ORDER_STATUS_LABELS = {

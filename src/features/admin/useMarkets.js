@@ -1,10 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getMarkets, getMarketStats, createMarket, updateMarketStatus, deleteMarket } from '@/services/adminService'
 import { QUERY_KEYS } from '@/lib/constants'
-import { toast } from 'sonner'
-
-
-// ---------- Queries ----------
+import { useAdminMutation } from '@/hooks/useAdminMutation'
 
 export function useMarkets() {
   return useQuery({
@@ -20,50 +17,29 @@ export function useMarketStats() {
   })
 }
 
-
-// ---------- Mutations ----------
-
 export function useCreateMarket() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (marketData) => createMarket(marketData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MARKETS] })
-      toast.success('Market created')
-    },
-    onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to create market.')
-    },
+  return useAdminMutation({
+    mutationFn: createMarket,
+    queryKey: QUERY_KEYS.MARKETS,
+    successMessage: 'Market created',
+    errorMessage: 'Failed to create market.',
   })
 }
 
 export function useUpdateMarketStatus() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
+  return useAdminMutation({
     mutationFn: ({ marketId, status }) => updateMarketStatus(marketId, status),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MARKETS] })
-      toast.success(`Market ${variables.status === 'active' ? 'activated' : 'deactivated'}`)
-    },
-    onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to update market status.')
-    },
+    queryKey: QUERY_KEYS.MARKETS,
+    getSuccessMessage: ({ status }) => `Market ${status === 'active' ? 'activated' : 'deactivated'}`,
+    errorMessage: 'Failed to update market status.',
   })
 }
 
 export function useDeleteMarket() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (marketId) => deleteMarket(marketId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MARKETS] })
-      toast.success('Market removed')
-    },
-    onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Failed to remove market.')
-    },
+  return useAdminMutation({
+    mutationFn: deleteMarket,
+    queryKey: QUERY_KEYS.MARKETS,
+    successMessage: 'Market removed',
+    errorMessage: 'Failed to remove market.',
   })
 }

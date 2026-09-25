@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useCustomers } from '@/features/admin/useCustomers'
-import { useCustomerStats } from '@/features/admin/useCustomerStats'
-import { useUpdateCustomerStatus, useDeleteCustomer } from '@/features/admin/useCustomerMutations'
+import { useUpdateCustomerStatus, useDeleteCustomer, useCustomers, useCustomerStats } from '@/features/admin/useCustomers'
 import Surface from '@/components/ui/Surface'
 import Stat from '@/components/ui/Stat'
 import Table from '@/components/ui/Table'

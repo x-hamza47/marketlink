@@ -963,3 +963,271 @@ export async function deleteReview(reviewId) {
     }, 300);
   });
 }
+
+
+// ================= Categories management =================
+const MOCK_CATEGORIES = [
+  {
+    id: "CAT-601",
+    name: "Vegetables",
+    status: "active",
+    image: null,
+  },
+  {
+    id: "CAT-602",
+    name: "Fruits",
+    status: "active",
+    image: null,
+  },
+  {
+    id: "CAT-603",
+    name: "Dairy & Eggs",
+    status: "active",
+    image: null,
+  },
+  {
+    id: "CAT-604",
+    name: "Herbs",
+    status: "inactive",
+    image: null,
+  },
+  {
+    id: "CAT-605",
+    name: "Baked Goods",
+    status: "active",
+    image: null,
+  },
+  {
+    id: "CAT-606",
+    name: "Honey & Preserves",
+    status: "active",
+    image: null,
+  },
+];
+
+/**
+ * Backend endpoint (planned): GET /admin/categories
+ */
+export async function getCategories() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/categories')
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(MOCK_CATEGORIES), 300);
+  });
+}
+
+/**
+ * Backend endpoint (planned): GET /admin/categories/stats
+ */
+export async function getCategoryStats() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/categories/stats')
+  // return data
+
+  // --- STATIC MOCK (derived so it never drifts out of sync) ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const total = MOCK_CATEGORIES.length;
+      const active = MOCK_CATEGORIES.filter((c) => c.status === "active").length;
+      const inactive = total - active;
+      resolve({ total, active, inactive });
+    }, 250);
+  });
+}
+
+/**
+ * Backend endpoint (planned): POST /admin/categories
+ * Sends multipart/form-data — backend handles the Cloudinary upload,
+ * we just attach the raw File under "image".
+ */
+export async function createCategory(categoryData) {
+  const formData = new FormData();
+  formData.append("name", categoryData.name);
+  formData.append("status", categoryData.status);
+  if (categoryData.image) {
+    formData.append("image", categoryData.image); // File object
+  }
+
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.post('/admin/categories', formData, {
+  //   headers: { 'Content-Type': 'multipart/form-data' },
+  // })
+  // return data
+
+  // --- STATIC MOCK (no real upload — just echoes back with a local preview URL) ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newCategory = {
+        id: `CAT-${Math.floor(600 + Math.random() * 400)}`,
+        name: categoryData.name,
+        status: categoryData.status,
+        image: categoryData.image ? URL.createObjectURL(categoryData.image) : null,
+      };
+      MOCK_CATEGORIES.push(newCategory);
+      resolve(newCategory);
+    }, 400);
+  });
+}
+
+/**
+ * Backend endpoint (planned): PATCH /admin/categories/:id
+ * Same FormData approach — image is optional on edit (only sent if replaced).
+ */
+export async function updateCategory(categoryId, categoryData) {
+  const formData = new FormData();
+  formData.append("name", categoryData.name);
+  formData.append("status", categoryData.status);
+  if (categoryData.image instanceof File) {
+    formData.append("image", categoryData.image);
+  }
+
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.patch(`/admin/categories/${categoryId}`, formData, {
+  //   headers: { 'Content-Type': 'multipart/form-data' },
+  // })
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const category = MOCK_CATEGORIES.find((c) => c.id === categoryId);
+      if (category) {
+        category.name = categoryData.name;
+        category.status = categoryData.status;
+        if (categoryData.image instanceof File) {
+          category.image = URL.createObjectURL(categoryData.image);
+        }
+      }
+      resolve(category);
+    }, 400);
+  });
+}
+
+/**
+ * Backend endpoint (planned): PATCH /admin/categories/:id/status
+ * status: 'active' | 'inactive'
+ */
+export async function updateCategoryStatus(categoryId, status) {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.patch(`/admin/categories/${categoryId}/status`, { status })
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const category = MOCK_CATEGORIES.find((c) => c.id === categoryId);
+      if (category) category.status = status;
+      resolve({ id: categoryId, status });
+    }, 300);
+  });
+}
+
+/**
+ * Backend endpoint (planned): DELETE /admin/categories/:id
+ */
+export async function deleteCategory(categoryId) {
+  // --- LIVE API CALL ---
+  // await axiosClient.delete(`/admin/categories/${categoryId}`)
+  // return { id: categoryId }
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const index = MOCK_CATEGORIES.findIndex((c) => c.id === categoryId);
+      if (index !== -1) MOCK_CATEGORIES.splice(index, 1);
+      resolve({ id: categoryId });
+    }, 300);
+  });
+}
+
+// ================= Reports & Analytics =================
+
+// Backend note: platform-wide summary stats for the Reports page header strip.
+// Needs: total completed orders, total revenue (sum of completed order amounts),
+// and count of currently active markets. Can likely reuse/derive from existing
+// Orders + Markets tables — no new schema needed.
+const MOCK_REPORTS_SUMMARY = {
+  totalOrders: 1248,
+  totalRevenue: 312500,
+  activeMarkets: 3,
+  trends: {
+    totalOrders: 15,
+    totalRevenue: 18,
+    activeMarkets: 0,
+  },
+};
+
+/**
+ * Backend endpoint (planned): GET /admin/reports/summary
+ * Needed: SUM/COUNT aggregates over Orders (status = 'completed'),
+ * plus COUNT of Markets where status = 'active'.
+ */
+export async function getReportsSummary() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/reports/summary')
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(MOCK_REPORTS_SUMMARY), 300);
+  });
+}
+
+// Backend note: revenue and order count grouped by market, for the
+// "revenue summary across markets" requirement in the SRS. This is a
+// GROUP BY market_id over the Orders table (join Orders -> Products -> Markets,
+// or however market is linked on an order), filtered to completed orders.
+const MOCK_REVENUE_BY_MARKET = [
+  { marketId: "MKT-301", marketName: "Clifton Sunday Market", orders: 512, revenue: 128400 },
+  { marketId: "MKT-302", marketName: "DHA Farmers Hub", orders: 340, revenue: 89200 },
+  { marketId: "MKT-303", marketName: "Gulshan Market", orders: 286, revenue: 71300 },
+  { marketId: "MKT-304", marketName: "North Nazimabad Weekly Bazaar", orders: 110, revenue: 23600 },
+];
+
+/**
+ * Backend endpoint (planned): GET /admin/reports/revenue-by-market
+ * Needed: GROUP BY market on Orders (status = 'completed'),
+ * returning { marketId, marketName, orders (count), revenue (sum) } per market.
+ */
+export async function getRevenueByMarket() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/reports/revenue-by-market')
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(MOCK_REVENUE_BY_MARKET), 300);
+  });
+}
+
+// Backend note: top farmers ranked by order volume, for the "most active
+// Farmers" requirement in the SRS. GROUP BY farmer_id over Orders
+// (via Products -> Farmer_id), ordered by order count (or revenue) descending,
+// limited to a top N (e.g. top 5).
+const MOCK_TOP_FARMERS = [
+  { farmerId: "FRM-101", name: "Tariq Mehmood", stall: "Green Valley Farms", orders: 412, revenue: 108500 },
+  { farmerId: "FRM-102", name: "Sana Iqbal", stall: "Sunrise Organics", orders: 298, revenue: 79200 },
+  { farmerId: "FRM-103", name: "Waqas Ahmed", stall: "Farmhouse Fresh", orders: 231, revenue: 61400 },
+  { farmerId: "FRM-107", name: "Imran Baig", stall: "Golden Harvest", orders: 176, revenue: 45300 },
+  { farmerId: "FRM-104", name: "Zainab Malik", stall: "Coastal Greens", orders: 131, revenue: 33900 },
+];
+
+/**
+ * Backend endpoint (planned): GET /admin/reports/top-farmers?limit=5
+ * Needed: GROUP BY farmer on Orders (via Products.Farmer_id), COUNT(order_id)
+ * and SUM(total_amount), ORDER BY order count DESC, LIMIT N. Status filter
+ * should likely be 'completed' orders only (not pending/cancelled).
+ */
+export async function getTopFarmers(limit = 5) {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get(`/admin/reports/top-farmers?limit=${limit}`)
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(MOCK_TOP_FARMERS.slice(0, limit)), 300);
+  });
+}

@@ -9,8 +9,10 @@ import MarketsPage from "../pages/admin/markets/MarketsPage";
 import ProductsPage from "../pages/admin/products/ProductsPage";
 import OrdersPage from "../pages/admin/orders/OrdersPage";
 import ReviewsPage from "../pages/admin/reviews/ReviewsPage";
+import CategoriesPage from "../pages/admin/categories/CategoriesPage";
+import ReportsPage from "../pages/admin/reports/ReportsPage";
 
-// Placeholder for pages not yet built — swapped out one by one as we build them.
+
 function ComingSoon({ title }) {
   return (
     <div className="flex items-center justify-center h-64 text-text-secondary text-sm">
@@ -40,9 +42,9 @@ export default function AdminRoutes() {
         <Route path="products" element={<ProductsPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="reviews" element={<ReviewsPage/>} />
-        <Route path="reports" element={<ComingSoon title="Reports" />} />
+        <Route path="reports" element={<ReportsPage/>} />
         <Route path="analytics" element={<ComingSoon title="Analytics" />} />
-        <Route path="categories" element={<ComingSoon title="Categories" />} />
+        <Route path="categories" element={<CategoriesPage/>} />
         <Route
           path="announcements"
           element={<ComingSoon title="Announcements" />}

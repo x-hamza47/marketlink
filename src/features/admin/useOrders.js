@@ -1,14 +1,18 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getRecentOrders, getOrderStats, updateOrderStatus, deleteOrder } from '@/services/adminService'
+import { useQuery } from '@tanstack/react-query'
+import { getRecentOrders, getOrderStats, getOrderAnalytics, updateOrderStatus, deleteOrder } from '@/services/adminService'
 import { QUERY_KEYS } from '@/lib/constants'
-import { toast } from 'sonner'
-
-
-// ---------- Queries ----------
+import { useAdminMutation } from '@/hooks/useAdminMutation'
 
 export function useOrders() {
   return useQuery({
     queryKey: [QUERY_KEYS.ORDERS],
+    queryFn: getRecentOrders,
+  })
+}
+
+export function useRecentOrders() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.ORDERS, 'recent'],
     queryFn: getRecentOrders,
   })
 }
@@ -20,35 +24,27 @@ export function useOrderStats() {
   })
 }
 
-
-// ---------- Mutations ----------
+export function useOrderAnalytics(range) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.ANALYTICS, 'order-trend', range],
+    queryFn: () => getOrderAnalytics(range),
+  })
+}
 
 export function useUpdateOrderStatus() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
+  return useAdminMutation({
     mutationFn: ({ orderId, status }) => updateOrderStatus(orderId, status),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ORDERS] })
-      toast.success(`Order #${variables.orderId} updated`)
-    },
-    onError: () => {
-      toast.error('Failed to update order. Please try again.')
-    },
+    queryKey: QUERY_KEYS.ORDERS,
+    getSuccessMessage: ({ orderId }) => `Order #${orderId} updated`,
+    errorMessage: 'Failed to update order. Please try again.',
   })
 }
 
 export function useDeleteOrder() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (orderId) => deleteOrder(orderId),
-    onSuccess: (_data, orderId) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ORDERS] })
-      toast.success(`Order #${orderId} deleted`)
-    },
-    onError: () => {
-      toast.error('Failed to delete order. Please try again.')
-    },
+  return useAdminMutation({
+    mutationFn: deleteOrder,
+    queryKey: QUERY_KEYS.ORDERS,
+    getSuccessMessage: (orderId) => `Order #${orderId} deleted`,
+    errorMessage: 'Failed to delete order. Please try again.',
   })
 }

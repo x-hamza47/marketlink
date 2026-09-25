@@ -35,8 +35,7 @@ const NAV_SECTIONS = [
   {
     label: 'Insights',
     items: [
-      { label: 'Reports', icon: FileBarChart, path: '/admin/reports' },
-      { label: 'Analytics', icon: LineChart, path: '/admin/analytics' },
+      { label: 'Reports & Analytics', icon: FileBarChart, path: '/admin/reports' },
     ],
   },
   {

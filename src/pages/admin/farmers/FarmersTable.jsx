@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useFarmers } from '@/features/admin/useFarmers'
-import { useUpdateFarmerStatus, useDeleteFarmer } from '@/features/admin/useFarmerMutations'
+import { useFarmers, useUpdateFarmerStatus, useDeleteFarmer } from '@/features/admin/useFarmers'
 import Surface from '@/components/ui/Surface'
 import Table from '@/components/ui/Table'
 import SearchInput from '@/components/ui/SearchInput'
@@ -9,7 +8,6 @@ import StatusBadge from '@/components/ui/StatusBadge'
 import ActionMenu from '@/components/ui/ActionMenu'
 import { formatDate } from '@/lib/format'
 import { Eye, CheckCircle2, Ban, Trash2 } from 'lucide-react'
-import Modal from '@/components/ui/Modal'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import FarmerDetailModal from '@/components/admin/FarmerDetailModal'
 
@@ -101,12 +99,14 @@ export default function FarmersTable() {
                       </button>
                       <ActionMenu
                         actions={[
+                          farmer.status !== 'approved' &&
                           {
                             label: 'Approve',
                             icon: CheckCircle2,
                             onClick: () =>
                               updateStatus.mutate({ farmerId: farmer.id, status: 'approved' }),
                           },
+                          farmer.status !== 'suspended' &&
                           {
                             label: 'Suspend',
                             icon: Ban,
@@ -120,7 +120,7 @@ export default function FarmersTable() {
                             danger: true,
                             onClick: () => setDeletingFarmer(farmer),
                           },
-                        ]}
+                        ].filter(Boolean)}
                       />
                     </div>
                   </Table.Cell>
