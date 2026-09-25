@@ -4,6 +4,8 @@ import OverviewKpiStrip from '@/pages/admin/Overview'
 import OrderAnalyticsChart from '@/pages/admin/OrderAnalyticsChart'
 import RecentOrdersTable from '@/pages/admin/RecentOrdersTable'
 import FarmersTable from '@/pages/admin/farmers/FarmersTable'
+import CustomersPage from '../pages/admin/customers/CustomersPage'
+import MarketsPage from '../pages/admin/markets/MarketsPage'
 
 // Placeholder for pages not yet built — swapped out one by one as we build them.
 function ComingSoon({ title }) {
@@ -27,12 +29,12 @@ function OverviewPage() {
 export default function AdminRoutes() {
   return (
     <Routes>
- 
+
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<OverviewPage />} />
         <Route path="farmers" element={<FarmersTable />} />
-        <Route path="customers" element={<ComingSoon title="Customers" />} />
-        <Route path="markets" element={<ComingSoon title="Markets" />} />
+        <Route path="customers" element={<CustomersPage />} />
+        <Route path="markets" element={<MarketsPage />} />
         <Route path="products" element={<ComingSoon title="Products" />} />
         <Route path="orders" element={<ComingSoon title="Orders" />} />
         <Route path="reviews" element={<ComingSoon title="Reviews" />} />

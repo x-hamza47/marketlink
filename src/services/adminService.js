@@ -205,3 +205,308 @@ return new Promise((resolve) => {
     }, 300)
   })
 }
+
+
+// ================= Customers management =================
+const MOCK_CUSTOMERS = [
+  { id: 'CUS-201', name: 'Sara Khalid', email: 'sara.khalid@gmail.com', phone: '0321-4567890', orders: 12, status: 'active', joined: '2026-02-11' },
+  { id: 'CUS-202', name: 'Bilal Ahmed', email: 'bilal.ahmed@gmail.com', phone: '0333-1122334', orders: 5, status: 'active', joined: '2026-03-28' },
+  { id: 'CUS-203', name: 'Ayesha Noor', email: 'ayesha.noor@gmail.com', phone: '0300-9988776', orders: 21, status: 'active', joined: '2026-01-15' },
+  { id: 'CUS-204', name: 'Hamza Tariq', email: 'hamza.tariq@gmail.com', phone: '0345-6677889', orders: 3, status: 'active', joined: '2026-06-02' },
+  { id: 'CUS-205', name: 'Mahnoor Ali', email: 'mahnoor.ali@gmail.com', phone: '0312-3344556', orders: 8, status: 'inactive', joined: '2026-04-19' },
+  { id: 'CUS-206', name: 'Usman Farooq', email: 'usman.farooq@gmail.com', phone: '0301-7788990', orders: 1, status: 'active', joined: '2026-08-07' },
+  { id: 'CUS-207', name: 'Fatima Sheikh', email: 'fatima.sheikh@gmail.com', phone: '0334-5566778', orders: 15, status: 'active', joined: '2026-02-25' },
+  { id: 'CUS-208', name: 'Ali Raza', email: 'ali.raza@gmail.com', phone: '0322-8899001', orders: 0, status: 'inactive', joined: '2026-09-01' },
+]
+
+export async function getCustomerStats() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/customers/stats')
+  // return data
+
+  // --- STATIC MOCK (derived from MOCK_CUSTOMERS so it never drifts out of sync) ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const total = MOCK_CUSTOMERS.length
+      const active = MOCK_CUSTOMERS.filter((c) => c.status === 'active').length
+      const inactive = total - active
+      const totalOrders = MOCK_CUSTOMERS.reduce((sum, c) => sum + c.orders, 0)
+      resolve({ total, active, inactive, totalOrders })
+    }, 250)
+  })
+}
+/**
+ * Backend endpoint (planned): GET /admin/customers
+ */
+export async function getCustomers() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/customers')
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(MOCK_CUSTOMERS), 300)
+  })
+}
+
+/**
+ * Backend endpoint (planned): PATCH /admin/customers/:id/status
+ * status: 'active' | 'inactive'
+ */
+export async function updateCustomerStatus(customerId, status) {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.patch(`/admin/customers/${customerId}/status`, { status })
+  // return data
+
+  // --- STATIC MOCK (mutates in-memory array so refetch reflects the change) ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const customer = MOCK_CUSTOMERS.find((c) => c.id === customerId)
+      if (customer) customer.status = status
+      resolve({ id: customerId, status })
+    }, 300)
+  })
+}
+
+/**
+ * Backend endpoint (planned): DELETE /admin/customers/:id
+ */
+export async function deleteCustomer(customerId) {
+  // --- LIVE API CALL ---
+  // await axiosClient.delete(`/admin/customers/${customerId}`)
+  // return { id: customerId }
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const index = MOCK_CUSTOMERS.findIndex((c) => c.id === customerId)
+      if (index !== -1) MOCK_CUSTOMERS.splice(index, 1)
+      resolve({ id: customerId })
+    }, 300)
+  })
+}
+
+
+// ================= Markets management =================
+const MOCK_MARKETS = [
+  {
+    id: 'MKT-301',
+    name: 'Clifton Sunday Market',
+    address: 'Beach Avenue, Clifton Block 4, Karachi',
+    operatingDays: ['Saturday', 'Sunday'],
+    farmers: 18,
+    products: 142,
+    status: 'active',
+    lat: 24.8138,
+    lng: 67.0300,
+  },
+  {
+    id: 'MKT-302',
+    name: 'DHA Farmers Hub',
+    address: 'Khayaban-e-Ittehad, DHA Phase 6, Karachi',
+    operatingDays: ['Friday', 'Saturday'],
+    farmers: 12,
+    products: 96,
+    status: 'active',
+    lat: 24.8007,
+    lng: 67.0654,
+  },
+  {
+    id: 'MKT-303',
+    name: 'Gulshan Market',
+    address: 'Block 13-D, Gulshan-e-Iqbal, Karachi',
+    operatingDays: ['Wednesday', 'Saturday', 'Sunday'],
+    farmers: 9,
+    products: 78,
+    status: 'active',
+    lat: 24.9200,
+    lng: 67.0930,
+  },
+  {
+    id: 'MKT-304',
+    name: 'North Nazimabad Weekly Bazaar',
+    address: 'Hyderi Market Road, North Nazimabad, Karachi',
+    operatingDays: ['Sunday'],
+    farmers: 5,
+    products: 41,
+    status: 'inactive',
+    lat: 24.9342,
+    lng: 67.0442,
+  },
+]
+/**
+ * Backend endpoint (planned): GET /admin/markets
+ */
+export async function getMarkets() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/markets')
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(MOCK_MARKETS), 300)
+  })
+}
+
+/**
+ * Backend endpoint (planned): GET /admin/markets/stats
+ */
+export async function getMarketStats() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/markets/stats')
+  // return data
+
+  // --- STATIC MOCK (derived so it never drifts out of sync) ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const total = MOCK_MARKETS.length
+      const active = MOCK_MARKETS.filter((m) => m.status === 'active').length
+      const totalFarmers = MOCK_MARKETS.reduce((sum, m) => sum + m.farmers, 0)
+      const totalProducts = MOCK_MARKETS.reduce((sum, m) => sum + m.products, 0)
+      resolve({ total, active, totalFarmers, totalProducts })
+    }, 250)
+  })
+}
+/**
+ * Backend endpoint (planned): POST /admin/markets
+ */
+export async function createMarket(marketData) {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.post('/admin/markets', marketData)
+  // return data
+
+  // --- STATIC MOCK (pushes a new entry into the in-memory array) ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newMarket = {
+        id: `MKT-${Math.floor(300 + Math.random() * 700)}`,
+        farmers: 0,
+        products: 0,
+        status: 'active',
+        ...marketData,
+      }
+      MOCK_MARKETS.push(newMarket)
+      resolve(newMarket)
+    }, 400)
+  })
+}
+/**
+ * Backend endpoint (planned): PATCH /admin/markets/:id/status
+ * status: 'active' | 'inactive'
+ */
+export async function updateMarketStatus(marketId, status) {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.patch(`/admin/markets/${marketId}/status`, { status })
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const market = MOCK_MARKETS.find((m) => m.id === marketId)
+      if (market) market.status = status
+      resolve({ id: marketId, status })
+    }, 300)
+  })
+}
+
+/**
+ * Backend endpoint (planned): DELETE /admin/markets/:id
+ */
+export async function deleteMarket(marketId) {
+  // --- LIVE API CALL ---
+  // await axiosClient.delete(`/admin/markets/${marketId}`)
+  // return { id: marketId }
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const index = MOCK_MARKETS.findIndex((m) => m.id === marketId)
+      if (index !== -1) MOCK_MARKETS.splice(index, 1)
+      resolve({ id: marketId })
+    }, 300)
+  })
+}
+
+
+// ================= Products management =================
+const MOCK_PRODUCTS = [
+  { id: 'PRD-401', name: 'Organic Tomatoes', farmer: 'Green Valley Farms', category: 'Vegetables', price: 180, unit: 'kg', stock: 42, availability: 'available', moderation: 'approved' },
+  { id: 'PRD-402', name: 'Fresh Spinach', farmer: 'Sunrise Organics', category: 'Vegetables', price: 90, unit: 'bundle', stock: 18, availability: 'available', moderation: 'approved' },
+  { id: 'PRD-403', name: 'Farm Eggs (Dozen)', farmer: 'Farmhouse Fresh', category: 'Dairy & Eggs', price: 420, unit: 'dozen', stock: 6, availability: 'low_stock', moderation: 'approved' },
+  { id: 'PRD-404', name: 'Wild Honey', farmer: 'Golden Harvest', category: 'Honey & Preserves', price: 1200, unit: 'jar', stock: 0, availability: 'unavailable', moderation: 'approved' },
+  { id: 'PRD-405', name: 'Fresh Basil', farmer: 'Coastal Greens', category: 'Herbs', price: 60, unit: 'bunch', stock: 25, availability: 'available', moderation: 'pending' },
+  { id: 'PRD-406', name: 'Carrots', farmer: 'Green Valley Farms', category: 'Vegetables', price: 110, unit: 'kg', stock: 33, availability: 'available', moderation: 'approved' },
+  { id: 'PRD-407', name: 'Strawberries', farmer: 'Orchard & Co.', category: 'Fruits', price: 350, unit: 'box', stock: 4, availability: 'low_stock', moderation: 'pending' },
+  { id: 'PRD-408', name: 'Sourdough Loaf', farmer: 'Herb & Root', category: 'Baked Goods', price: 480, unit: 'loaf', stock: 12, availability: 'available', moderation: 'rejected' },
+]
+
+/**
+ * Backend endpoint (planned): GET /admin/products
+ */
+export async function getProducts() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/products')
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(MOCK_PRODUCTS), 300)
+  })
+}
+
+/**
+ * Backend endpoint (planned): GET /admin/products/stats
+ */
+export async function getProductStats() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/products/stats')
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const total = MOCK_PRODUCTS.length
+      const available = MOCK_PRODUCTS.filter((p) => p.availability === 'available').length
+      const lowStock = MOCK_PRODUCTS.filter((p) => p.availability === 'low_stock').length
+      const pendingModeration = MOCK_PRODUCTS.filter((p) => p.moderation === 'pending').length
+      resolve({ total, available, lowStock, pendingModeration })
+    }, 250)
+  })
+}
+
+/**
+ * Backend endpoint (planned): PATCH /admin/products/:id/moderation
+ * moderation: 'approved' | 'rejected'
+ */
+export async function updateProductModeration(productId, moderation) {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.patch(`/admin/products/${productId}/moderation`, { moderation })
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const product = MOCK_PRODUCTS.find((p) => p.id === productId)
+      if (product) product.moderation = moderation
+      resolve({ id: productId, moderation })
+    }, 300)
+  })
+}
+
+/**
+ * Backend endpoint (planned): DELETE /admin/products/:id
+ */
+export async function deleteProduct(productId) {
+  // --- LIVE API CALL ---
+  // await axiosClient.delete(`/admin/products/${productId}`)
+  // return { id: productId }
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const index = MOCK_PRODUCTS.findIndex((p) => p.id === productId)
+      if (index !== -1) MOCK_PRODUCTS.splice(index, 1)
+      resolve({ id: productId })
+    }, 300)
+  })
+}
