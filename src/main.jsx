@@ -13,7 +13,7 @@ const queryClient = new QueryClient({
     },
   },
 })
-
+// find . -path './node_modules' -prune -o -path './.git' -prune -o -path './dist' -prune -o -print
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
