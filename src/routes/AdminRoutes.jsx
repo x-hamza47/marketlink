@@ -11,6 +11,8 @@ import OrdersPage from "../pages/admin/orders/OrdersPage";
 import ReviewsPage from "../pages/admin/reviews/ReviewsPage";
 import CategoriesPage from "../pages/admin/categories/CategoriesPage";
 import ReportsPage from "../pages/admin/reports/ReportsPage";
+import AnnouncementsPage from "../pages/admin/announcement/AnnouncementsPage";
+import ProfilePage from "../pages/shared/ProfilePage";
 
 
 function ComingSoon({ title }) {
@@ -43,13 +45,13 @@ export default function AdminRoutes() {
         <Route path="orders" element={<OrdersPage />} />
         <Route path="reviews" element={<ReviewsPage/>} />
         <Route path="reports" element={<ReportsPage/>} />
-        <Route path="analytics" element={<ComingSoon title="Analytics" />} />
         <Route path="categories" element={<CategoriesPage/>} />
         <Route
           path="announcements"
-          element={<ComingSoon title="Announcements" />}
+          element={<AnnouncementsPage/>}
         />
-        <Route path="settings" element={<ComingSoon title="Settings" />} />
+        {/* <Route path="settings" element={<ComingSoon title="Settings" />} /> */}
+        <Route path="profile" element={<ProfilePage />} /> 
       </Route>
     </Routes>
   );

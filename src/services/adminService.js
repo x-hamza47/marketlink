@@ -1231,3 +1231,137 @@ export async function getTopFarmers(limit = 5) {
     setTimeout(() => resolve(MOCK_TOP_FARMERS.slice(0, limit)), 300);
   });
 }
+
+// ================= Announcements management =================
+const MOCK_ANNOUNCEMENTS = [
+  {
+    id: "ANN-701",
+    title: "Eid Holidays - Market Closures",
+    message: "Several farmers markets will be closed on Eid days. Check your local market's schedule before visiting.",
+    audience: "all",
+    status: "published",
+    createdBy: "Hamza Aamir",
+    createdAt: "2026-09-20T10:00:00",
+    expiresAt: "2026-09-30T00:00:00",
+  },
+  {
+    id: "ANN-702",
+    title: "New Pickup Slot Rules",
+    message: "Farmers must set their cutoff time at least 2 hours before the first pickup slot starts, effective next week.",
+    audience: "farmers",
+    status: "published",
+    createdBy: "Hamza Aamir",
+    createdAt: "2026-09-18T14:30:00",
+    expiresAt: null,
+  },
+  {
+    id: "ANN-703",
+    title: "Rate Your Recent Orders",
+    message: "Leaving reviews helps other shoppers and your favorite farmers grow. Rate your last completed order today.",
+    audience: "customers",
+    status: "published",
+    createdBy: "Hamza Aamir",
+    createdAt: "2026-09-15T09:00:00",
+    expiresAt: null,
+  },
+  {
+    id: "ANN-704",
+    title: "Upcoming Maintenance Window",
+    message: "Draft — platform maintenance scheduled, confirm timing before publishing.",
+    audience: "all",
+    status: "draft",
+    createdBy: "Hamza Aamir",
+    createdAt: "2026-09-22T11:00:00",
+    expiresAt: null,
+  },
+];
+
+/**
+ * Backend endpoint (planned): GET /admin/announcements
+ */
+export async function getAnnouncements() {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.get('/admin/announcements')
+  // return data
+
+  // --- STATIC MOCK ---
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(MOCK_ANNOUNCEMENTS), 300);
+  });
+}
+
+/**
+ * Backend endpoint (planned): GET /admin/announcements/stats
+ */
+export async function getAnnouncementStats() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const total = MOCK_ANNOUNCEMENTS.length;
+      const published = MOCK_ANNOUNCEMENTS.filter((a) => a.status === "published").length;
+      const drafts = total - published;
+      resolve({ total, published, drafts });
+    }, 250);
+  });
+}
+
+/**
+ * Backend endpoint (planned): POST /admin/announcements
+ */
+export async function createAnnouncement(announcementData) {
+  // --- LIVE API CALL ---
+  // const { data } = await axiosClient.post('/admin/announcements', announcementData)
+  // return data
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newAnnouncement = {
+        id: `ANN-${Math.floor(700 + Math.random() * 300)}`,
+        createdBy: "Hamza Aamir",
+        createdAt: new Date().toISOString(),
+        ...announcementData,
+      };
+      MOCK_ANNOUNCEMENTS.unshift(newAnnouncement);
+      resolve(newAnnouncement);
+    }, 400);
+  });
+}
+
+/**
+ * Backend endpoint (planned): PATCH /admin/announcements/:id
+ */
+export async function updateAnnouncement(announcementId, announcementData) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const announcement = MOCK_ANNOUNCEMENTS.find((a) => a.id === announcementId);
+      if (announcement) Object.assign(announcement, announcementData);
+      resolve(announcement);
+    }, 400);
+  });
+}
+
+/**
+ * Backend endpoint (planned): PATCH /admin/announcements/:id/status
+ * status: 'published' | 'draft'
+ */
+export async function updateAnnouncementStatus(announcementId, status) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const announcement = MOCK_ANNOUNCEMENTS.find((a) => a.id === announcementId);
+      if (announcement) announcement.status = status;
+      resolve({ id: announcementId, status });
+    }, 300);
+  });
+}
+
+/**
+ * Backend endpoint (planned): DELETE /admin/announcements/:id
+ */
+export async function deleteAnnouncement(announcementId) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const index = MOCK_ANNOUNCEMENTS.findIndex((a) => a.id === announcementId);
+      if (index !== -1) MOCK_ANNOUNCEMENTS.splice(index, 1);
+      resolve({ id: announcementId });
+    }, 300);
+  });
+}

@@ -1,7 +1,7 @@
 import { Search, Bell, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
-import Avatar from '@/components/ui/Avatar'
 import { useAuthStore } from '@/stores/authStore'
 import { useUiStore } from '@/stores/uiStore'
+import AccountMenu from '../ui/AccountMenu'
 
 export default function Topbar({ pageTitle, searchPlaceholder = 'Search…' }) {
   const user = useAuthStore((state) => state.user)
@@ -56,7 +56,7 @@ export default function Topbar({ pageTitle, searchPlaceholder = 'Search…' }) {
           <Bell className="w-4.5 h-4.5" strokeWidth={1.75} />
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-error" />
         </button>
-        <Avatar name={user?.name} src={user?.avatarUrl} size="sm" />
+        <AccountMenu/>
       </div>
     </header>
   )

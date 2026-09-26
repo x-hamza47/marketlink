@@ -14,6 +14,7 @@ import {
   Megaphone,
   Settings,
   HelpCircle,
+  UserCircle2,
 } from 'lucide-react'
 
 const NAV_SECTIONS = [
@@ -48,8 +49,8 @@ const NAV_SECTIONS = [
   {
     label: 'System',
     items: [
-      { label: 'Settings', icon: Settings, path: '/admin/settings' },
-      { label: 'Help', icon: HelpCircle, path: '/admin/help' },
+      { label: 'My Profile', icon: UserCircle2, path: '/admin/profile' },
+      // { label: 'Help', icon: HelpCircle, path: '/admin/help' },
     ],
   },
 ]
