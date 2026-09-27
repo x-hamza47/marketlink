@@ -1,88 +1,51 @@
 import axiosClient from "./axiosClient";
 
-// ================= Profile — shared across Admin / Farmer / Customer =================
-// Since this mock layer has no persistence across reloads beyond in-memory,
-// we key off the currently logged-in user (from useAuthStore) at call time.
-
-/**
- * Backend endpoint (planned): GET /profile
- * Returns the logged-in user's full profile (role-aware on the backend —
- * e.g. includes stall info for farmers, order count for customers).
- */
-export async function getProfile(userId) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get('/profile')
-  // return data
-
-  // --- STATIC MOCK ---
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        id: userId,
-        name: "Hamza Aamir",
-        email: "hamza@marketlink.app",
-        phone: "0321-1234567",
-        role: "admin",
-        avatarUrl: null,
-        createdAt: "2026-01-10T09:00:00",
-      });
-    }, 300);
-  });
+export async function getProfile() {
+  const { data } = await axiosClient.get('/users/profile');
+  return {
+    id: data.data._id,
+    name: data.data.name,
+    email: data.data.email,
+    phone: data.data.phone,
+    address: data.data.address,
+    role: data.data.role,
+    avatarUrl: data.data.imageUrl || null,
+    createdAt: data.data.createdAt,
+  };
 }
 
-/**
- * Backend endpoint (planned): PATCH /profile
- * Sends multipart/form-data — same pattern as createCategory/updateCategory —
- * backend handles the Cloudinary upload, we just attach the raw File under "avatar".
- */
 export async function updateProfile(profileData) {
-  const formData = new FormData();
-  formData.append("name", profileData.name);
-  formData.append("email", profileData.email);
-  formData.append("phone", profileData.phone);
+  let imageUrl = profileData.avatarUrl;
+
   if (profileData.avatar instanceof File) {
-    formData.append("avatar", profileData.avatar);
+    const formData = new FormData();
+    formData.append('file', profileData.avatar);
+    const { data: uploadRes } = await axiosClient.post('/upload/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    imageUrl = uploadRes.data.url;
   }
 
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.patch('/profile', formData, {
-  //   headers: { 'Content-Type': 'multipart/form-data' },
-  // })
-  // return data
+  const payload = {
+    name: profileData.name,
+    phone: profileData.phone,
+    address: profileData.address || '',
+  };
+  if (imageUrl) payload.imageUrl = imageUrl;
 
-  // --- STATIC MOCK (echoes back with a local preview URL, like updateCategory) ---
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        name: profileData.name,
-        email: profileData.email,
-        phone: profileData.phone,
-        avatarUrl:
-          profileData.avatar instanceof File
-            ? URL.createObjectURL(profileData.avatar)
-            : profileData.avatarUrl ?? null,
-      });
-    }, 400);
-  });
+  const { data } = await axiosClient.put('/users/profile', payload);
+  return {
+    name: data.data.name,
+    email: data.data.email,
+    phone: data.data.phone,
+    avatarUrl: data.data.imageUrl || null,
+  };
 }
 
-/**
- * Backend endpoint (planned): PATCH /profile/password
- */
 export async function changePassword(passwordData) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.patch('/profile/password', passwordData)
-  // return data
-
-  // --- STATIC MOCK ---
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Simulate a wrong-current-password failure so the UI's error path is testable.
-      if (passwordData.currentPassword === "wrongpass") {
-        reject({ response: { data: { message: "Current password is incorrect." } } });
-        return;
-      }
-      resolve({ success: true });
-    }, 400);
+  const { data } = await axiosClient.patch('/users/profile/password', {
+    currentPassword: passwordData.currentPassword,
+    newPassword: passwordData.newPassword,
   });
+  return data.data;
 }

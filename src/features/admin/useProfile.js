@@ -5,19 +5,15 @@ import { useAuthStore } from '@/stores/authStore'
 
 const PROFILE_QUERY_KEY = 'profile'
 
-// ---------- Query ----------
-
 export function useProfile() {
-  const userId = useAuthStore((state) => state.user?.id)
+  const userId = useAuthStore((state) => state.user?._id)
 
   return useQuery({
     queryKey: [PROFILE_QUERY_KEY, userId],
-    queryFn: () => getProfile(userId),
+    queryFn: getProfile,
     enabled: !!userId,
   })
 }
-
-// ---------- Mutations ----------
 
 export function useUpdateProfile() {
   return useAdminMutation({

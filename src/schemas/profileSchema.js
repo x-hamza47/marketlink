@@ -13,9 +13,6 @@ const avatarFileSchema = z
   })
 
 // ---------- Profile info ----------
-// Same core fields for every role (Admin / Farmer / Customer). Role-specific
-// extras (e.g. a Farmer's stall name) can be added separately in the page
-// if/when needed — this schema only covers what's common to all users.
 export const profileInfoSchema = z.object({
   name: z
     .string()
@@ -32,6 +29,11 @@ export const profileInfoSchema = z.object({
     .string()
     .min(1, 'Phone number is required')
     .regex(/^[0-9+\-\s()]{7,20}$/, 'Enter a valid phone number'),
+
+  address: z
+    .string()
+    .max(200, 'Address must be under 200 characters')
+    .optional(),
 
   avatar: z
     .union([avatarFileSchema, z.null(), z.undefined()])

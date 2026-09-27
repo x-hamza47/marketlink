@@ -38,14 +38,14 @@ function ProfileInfoForm() {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(profileInfoSchema),
-    defaultValues: { name: '', email: '', phone: '', avatar: undefined },
+    defaultValues: { name: '', email: '', phone: '', address: '', avatar: undefined },
   })
 
   const avatarValue = watch('avatar')
 
   useEffect(() => {
     if (profile) {
-      reset({ name: profile.name, email: profile.email, phone: profile.phone, avatar: undefined })
+      reset({ name: profile.name, email: profile.email, phone: profile.phone, address: profile.address || '', avatar: undefined })
       setPreviewUrl(profile.avatarUrl || null)
     }
   }, [profile, reset])
@@ -66,7 +66,10 @@ function ProfileInfoForm() {
   function onValid(data) {
     updateProfileMutation.mutate(data, {
       onSuccess: (updated) => {
-        login({ ...user, ...updated })
+        // Re-pass the existing token — login() overwrites it, and we don't
+        // want to wipe it out just because we're updating profile fields.
+        const token = localStorage.getItem('marketlink_token')
+        login({ ...user, ...updated }, token)
       },
     })
   }
@@ -160,6 +163,21 @@ function ProfileInfoForm() {
             />
             {errors.phone && <p className="text-xs text-error mt-1">{errors.phone.message}</p>}
           </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-text-main mb-1.5">
+            Address <span className="text-text-secondary font-normal">(optional)</span>
+          </label>
+          <input
+            {...register('address')}
+            type="text"
+            placeholder="Street, area, city"
+            className={cn(
+              'w-full h-10 px-3 rounded-md border bg-surface-cream text-sm outline-none',
+              errors.address ? 'border-error' : 'border-line focus:border-forest'
+            )}
+          />
+          {errors.address && <p className="text-xs text-error mt-1">{errors.address.message}</p>}
         </div>
 
         <div className="flex justify-end pt-2 border-t border-line/60">

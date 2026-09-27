@@ -1,10 +1,8 @@
 import { Search, Bell, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
-import { useAuthStore } from '@/stores/authStore'
 import { useUiStore } from '@/stores/uiStore'
 import AccountMenu from '../ui/AccountMenu'
 
 export default function Topbar({ pageTitle, searchPlaceholder = 'Search…' }) {
-  const user = useAuthStore((state) => state.user)
   const isSidebarCollapsed = useUiStore((state) => state.isSidebarCollapsed)
   const toggleSidebarCollapsed = useUiStore((state) => state.toggleSidebarCollapsed)
   const openMobileNav = useUiStore((state) => state.openMobileNav)
