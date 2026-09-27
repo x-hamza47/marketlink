@@ -2,8 +2,8 @@
 import { Link } from 'react-router-dom'
 import { Sprout, Send } from 'lucide-react'
 
-const FOOTER_COLUMNS = [
-  { title: 'Explore', links: [{ label: 'Markets', to: '/markets' }, { label: 'Products', to: '/products' }, { label: 'How It Works', to: '/how-it-works' }, { label: 'About Us', to: '/about' }, { label: 'Contact', to: '/contact' }] },
+  const FOOTER_COLUMNS = [
+    { title: 'Explore', links: [{ label: 'Markets', to: '/markets' }, { label: 'Products', to: '/products' }, { label: 'How It Works', to: '/how-it-works' }, { label: 'About Us', to: '/about' }, { label: 'Contact', to: '/contact' }] },
   { title: 'Account', links: [{ label: 'Log In', to: '/login' }, { label: 'Create Account', to: '/signup' }, { label: 'Order History', to: '/account/orders' }, { label: 'Favorites', to: '/account/favorites' }] },
   { title: 'For Farmers', links: [{ label: 'Join as Farmer', to: '/farmer/register' }, { label: 'Manage Products', to: '/farmer/products' }, { label: 'Orders', to: '/farmer/orders' }, { label: 'Dashboard', to: '/farmer' }] },
   { title: 'Legal', links: [{ label: 'Privacy Policy', to: '/privacy' }, { label: 'Terms & Conditions', to: '/terms' }, { label: 'Refund Policy', to: '/refund' }] },

@@ -370,3 +370,9 @@ export async function cancelCustomerOrder(orderId) {
     }, 300)
   })
 }
+
+
+export async function getAllMarketsPublic() {
+  const { data } = await axiosClient.get('/markets')
+  return data.data 
+}
