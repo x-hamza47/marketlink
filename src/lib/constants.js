@@ -14,6 +14,6 @@ export const QUERY_KEYS = {
 export const ORDER_STATUS_LABELS = {
   placed: 'Placed',
   accepted: 'Accepted',
-  ready_for_pickup: 'Ready for Pickup',
+  ready: 'Ready for Pickup',
   completed: 'Completed',
 }

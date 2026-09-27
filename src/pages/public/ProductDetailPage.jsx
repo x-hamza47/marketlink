@@ -75,7 +75,7 @@ export default function ProductDetailPage() {
   const [showReviewForm, setShowReviewForm] = useState(false)
 
   const { addItem } = useCartStore()
-  const { isFavorite, toggleFavorite } = useFavoritesStore()
+  const { isFavoriteProduct, toggleFavoriteProduct } = useFavoritesStore()
   const { isAuthenticated } = useAuthStore()
   const requireAuth = useRequireAuth()
 
@@ -107,26 +107,34 @@ export default function ProductDetailPage() {
 
   const status = STATUS_LABEL[product.status]
   const isSoldOut = product.status === 'sold_out'
-  const isFav = isFavorite(product.id)
+  const isFav = isFavoriteProduct(product.id)
   const avgRating = reviews?.length
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
     : product.rating ?? '-'
 
   const handleAddToCart = requireAuth(() => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      unit: product.unit,
-      farmer: product.farmer,
-      image: product.image,
-      quantity,
-    })
+    const markets = product.farmerMarkets || []
+    if (markets.length > 1) {
+      toast.info('This farmer sells at multiple markets - market picker coming next')
+    }
+    addItem(
+      {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        unit: product.unit,
+        farmer: product.farmer,
+        farmerId: product.farmerId,
+        image: product.image,
+        quantity,
+      },
+      markets[0] || null
+    )
     toast.success(`${quantity} × ${product.name} added to cart`)
   })
 
   const handleToggleFavorite = requireAuth(() => {
-    toggleFavorite(product.id)
+    toggleFavoriteProduct(product.id)
     toast.success(isFav ? 'Removed from favorites' : 'Added to favorites')
   })
 

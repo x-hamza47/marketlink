@@ -1,8 +1,6 @@
 import axiosClient from './axiosClient'
 
-
 // Products
-
 export async function getFeaturedProducts() {
   const { data } = await axiosClient.get('/products', {
     params: { limit: 8, availableOnly: 'true', sort: '-createdAt' },
@@ -47,6 +45,8 @@ function mapProduct(p) {
       ? 'limited'
       : 'available'
 
+  const farmerProfile = p.farmerId || null
+
   return {
     id: p._id,
     name: p.name,
@@ -55,23 +55,33 @@ function mapProduct(p) {
     unit: p.unit,
     stock: stockQuantity,
     image: p.imageUrl || '',
-    farmer: p.farmerId?.userId?.name || 'Unknown farmer',
+    farmer: farmerProfile?.userId?.name || farmerProfile?.stallName || 'Unknown farmer',
     status,
     rating: null,
     reviews: 0,
-    marketId: null,
-    marketDay: null,
+
+    farmerId: farmerProfile?._id || null,
+    stallName: farmerProfile?.stallName || '',
+    farmerMarkets: (farmerProfile?.markets || []).map((m) => ({
+      marketId: m.marketId?._id || m.marketId,
+      marketName: m.marketId?.name || '',
+      marketAddress: m.marketId?.address || '',
+      operatingDays: m.operatingDays,
+      pickupStart: m.pickupStart,
+      pickupEnd: m.pickupEnd,
+      cutoffHours: m.cutoffHours,
+    })),
   }
 }
 function mapProducts(items) {
   return (items || []).map(mapProduct)
 }
 
-
 export async function getPublicCategories() {
   const { data } = await axiosClient.get('/products/meta/categories')
   return data.data
 }
+
 
 
 const MOCK_PRODUCT_REVIEWS = {
@@ -124,7 +134,7 @@ export async function getRelatedProducts(productId, category) {
   return all.filter((p) => p.id !== productId).slice(0, 4)
 }
 
-
+// ! Market Apis
 export async function getNearbyMarkets(filters = {}) {
   const { lat, lng, maxDistanceKm, day, search } = filters
 
@@ -147,7 +157,7 @@ export async function getNearbyMarkets(filters = {}) {
   return data.data
 }
 
-// ! Market Apis
+
 export async function getMarketById(marketId) {
   const { data } = await axiosClient.get(`/markets/${marketId}`)
   return data.data
@@ -165,7 +175,6 @@ export async function getMarketProducts(marketId, { page = 1, limit = 2 } = {}) 
   }
 }
 export async function getMarketFarmers(marketId) {
-  // fetch a large page since we need the full set to derive distinct farmers, not just one page
   const { items: products } = await getMarketProducts(marketId, { page: 1, limit: 200 })
   const seen = new Map()
   products.forEach((p) => {
@@ -174,85 +183,54 @@ export async function getMarketFarmers(marketId) {
   return Array.from(seen.values())
 }
 
-// ================= Customer's own orders =================
-const MOCK_CUSTOMER_ORDERS = [
-  {
-    id: 'MKL-1042',
-    items: [
-      { name: 'Fresh Tomatoes', quantity: 3, unit: 'kg', price: 250 },
-      { name: 'Carrots', quantity: 2, unit: 'kg', price: 110 },
-    ],
-    farmer: 'Green Valley Farm',
-    market: 'Sunday Green Market',
-    total: 970,
-    pickupDate: '2026-09-28',
-    pickupSlot: '9:00 AM – 10:00 AM',
-    status: 'placed', // 'placed' | 'accepted' | 'ready_for_pickup' | 'completed' | 'declined' | 'cancelled'
-    cutoffTime: '2026-09-28T07:00:00',
-  },
-  {
-    id: 'MKL-1036',
-    items: [{ name: 'Farm Eggs (10pcs)', quantity: 2, unit: 'pack', price: 300 }],
-    farmer: 'Happy Hens Farm',
-    market: 'Sunday Green Market',
-    total: 600,
-    pickupDate: '2026-09-27',
-    pickupSlot: '10:00 AM – 11:00 AM',
-    status: 'ready_for_pickup',
-    cutoffTime: '2026-09-27T09:00:00',
-  },
-  {
-    id: 'MKL-1020',
-    items: [{ name: 'Wild Honey', quantity: 1, unit: 'jar', price: 1200 }],
-    farmer: 'Golden Harvest',
-    market: 'Community Fresh Market',
-    total: 1200,
-    pickupDate: '2026-09-20',
-    pickupSlot: '5:00 PM – 6:00 PM',
-    status: 'completed',
-    cutoffTime: '2026-09-20T14:00:00',
-  },
-  {
-    id: 'MKL-1018',
-    items: [{ name: 'Fresh Basil', quantity: 4, unit: 'bunch', price: 60 }],
-    farmer: 'Coastal Greens',
-    market: 'Organic Bazar',
-    total: 240,
-    pickupDate: '2026-09-19',
-    pickupSlot: '8:00 AM – 9:00 AM',
-    status: 'declined',
-    cutoffTime: '2026-09-19T06:00:00',
-  },
-]
+function mapOrderStatus(status) {
+  return status === 'ready' ? 'ready_for_pickup' : status
+}
 
-/**
- * Backend endpoint (planned): GET /customer/orders
- * Scoped to the logged-in customer (Orders.customer_id = current user).
- */
+function mapOrder(o) {
+  return {
+    id: o._id,
+    items: (o.items || []).map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      unit: item.unit,
+      price: item.price,
+      image: item.imageUrl || '',
+    })),
+    farmer: o.farmerId?.stallName || 'Unknown farmer',
+    market: o.marketId?.name || o.marketId?.address || '',
+    total: o.totalAmount,
+    pickupDate: o.pickupDate,
+    pickupSlot:
+      o.pickupWindow?.startTime && o.pickupWindow?.endTime
+        ? `${o.pickupWindow.startTime} – ${o.pickupWindow.endTime}`
+        : '',
+    status: mapOrderStatus(o.status),
+    cutoffTime: o.cutoffTime,
+    notes: o.notes || '',
+  }
+}
+
 export async function getCustomerOrders() {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get('/customer/orders')
-  // return data
-
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(MOCK_CUSTOMER_ORDERS), 300)
-  })
+  const { data } = await axiosClient.get('/orders/my')
+  return (data.data || []).map(mapOrder)
 }
 
-/**
- * Backend endpoint (planned): PATCH /customer/orders/:id/cancel
- * Only allowed before the farmer's cutoff time.
- */
 export async function cancelCustomerOrder(orderId) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const order = MOCK_CUSTOMER_ORDERS.find((o) => o.id === orderId)
-      if (order) order.status = 'cancelled'
-      resolve({ id: orderId, status: 'cancelled' })
-    }, 300)
-  })
+  const { data } = await axiosClient.patch(`/orders/${orderId}/cancel`)
+  return mapOrder(data.data)
 }
-
+export async function placeOrder({ farmerId, marketId, items, pickupDate, pickupWindow, notes }) {
+  const { data } = await axiosClient.post('/orders', {
+    farmerId,
+    marketId,
+    items,
+    pickupDate,
+    pickupWindow,
+    notes,
+  })
+  return mapOrder(data.data)
+}
 
 export async function getAllMarketsPublic() {
   const { data } = await axiosClient.get('/markets')

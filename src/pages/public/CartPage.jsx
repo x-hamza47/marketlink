@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Minus,
@@ -13,36 +13,62 @@ import {
 } from 'lucide-react'
 import { useCartStore } from '@/stores/cartStore'
 import { useAuthStore } from '@/stores/authStore'
+import { placeOrder } from '@/services/publicService'
 import { toast } from 'sonner'
 
-// Dummy pickup slots — until backend exposes real per-market cutoff/slot data
-const PICKUP_DATES = ['Sun, 28 Sep', 'Mon, 29 Sep', 'Tue, 30 Sep']
-const PICKUP_TIMES = ['9:00 AM – 10:00 AM', '10:00 AM – 11:00 AM', '4:00 PM – 5:00 PM']
+const DAY_LABELS = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' }
+
+// Next upcoming calendar date for a given weekday short-code, within next 7 days
+function nextDateForDay(dayCode) {
+  const dayIndex = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(dayCode)
+  const today = new Date()
+  const diff = (dayIndex - today.getDay() + 7) % 7
+  const date = new Date(today)
+  date.setDate(today.getDate() + (diff === 0 ? 7 : diff)) // next occurrence, not today
+  return date
+}
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, getTotalPrice, clearCart } = useCartStore()
+  const { items, market, farmerId, updateQuantity, removeItem, getTotalPrice, clearCart } = useCartStore()
   const { user } = useAuthStore()
 
-  const [pickupDate, setPickupDate] = useState(PICKUP_DATES[0])
-  const [pickupTime, setPickupTime] = useState(PICKUP_TIMES[0])
+  const pickupDays = market?.operatingDays || []
+  const [selectedDay, setSelectedDay] = useState(pickupDays[0] || '')
   const [notes, setNotes] = useState('')
   const [isPlacing, setIsPlacing] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(null)
 
   const subtotal = getTotalPrice()
 
-  const handlePlaceOrder = async () => {
-    setIsPlacing(true)
-    // --- LIVE API CALL (once backend exists) ---
-    // await axiosClient.post('/orders', { items, pickupDate, pickupTime, notes })
+  const selectedDate = useMemo(
+    () => (selectedDay ? nextDateForDay(selectedDay) : null),
+    [selectedDay]
+  )
 
-    // --- STATIC MOCK ---
-    await new Promise((resolve) => setTimeout(resolve, 800))
-    const orderId = `MKL-${Math.floor(1000 + Math.random() * 9000)}`
-    setOrderPlaced({ id: orderId, date: pickupDate, time: pickupTime, total: subtotal })
-    clearCart()
-    setIsPlacing(false)
-    toast.success('Order placed successfully!')
+  const handlePlaceOrder = async () => {
+    if (!market || !selectedDay) {
+      toast.error('Pickup market/day not set')
+      return
+    }
+
+    setIsPlacing(true)
+    try {
+      const order = await placeOrder({
+        farmerId,
+        marketId: market.marketId,
+        items: items.map((i) => ({ productId: i.id, quantity: i.quantity })),
+        pickupDate: selectedDate,
+        pickupWindow: { startTime: market.pickupStart, endTime: market.pickupEnd },
+        notes,
+      })
+      setOrderPlaced(order)
+      clearCart()
+      toast.success('Order placed successfully!')
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Could not place order. Try again.')
+    } finally {
+      setIsPlacing(false)
+    }
   }
 
   // Success state — after order is placed
@@ -64,11 +90,11 @@ export default function CartPage() {
           <div className="rounded-xl bg-bg-ivory p-4 text-left space-y-2 mb-6">
             <div className="flex items-center gap-2 text-sm">
               <Calendar size={14} className="text-forest" />
-              <span className="text-text-main">{orderPlaced.date}</span>
+              <span className="text-text-main">{new Date(orderPlaced.pickupDate).toDateString()}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Clock size={14} className="text-forest" />
-              <span className="text-text-main">{orderPlaced.time}</span>
+              <span className="text-text-main">{orderPlaced.pickupSlot}</span>
             </div>
             <div className="flex items-center justify-between text-sm pt-2 border-t border-line">
               <span className="text-text-secondary">Total (pay at pickup)</span>
@@ -188,53 +214,58 @@ export default function CartPage() {
               ))}
             </div>
 
-            {/* Pickup date */}
+            {/* Pickup market info */}
+            {market && (
+              <div className="rounded-2xl border border-line bg-surface-cream p-5">
+                <p className="text-sm font-semibold text-text-main mb-1 flex items-center gap-2">
+                  <MapPin size={15} className="text-forest" />
+                  Pickup Market
+                </p>
+                <p className="text-sm text-text-secondary">{market.marketName || market.marketAddress}</p>
+              </div>
+            )}
+
+            {/* Pickup day */}
             <div className="rounded-2xl border border-line bg-surface-cream p-5">
               <p className="text-sm font-semibold text-text-main mb-3 flex items-center gap-2">
                 <Calendar size={15} className="text-forest" />
-                Pickup Date
+                Pickup Day
               </p>
               <div className="flex flex-wrap gap-2">
-                {PICKUP_DATES.map((date) => (
+                {pickupDays.map((day) => (
                   <button
-                    key={date}
+                    key={day}
                     type="button"
-                    onClick={() => setPickupDate(date)}
+                    onClick={() => setSelectedDay(day)}
                     className={`rounded-full px-4 py-2 text-sm border transition-colors ${
-                      pickupDate === date
+                      selectedDay === day
                         ? 'bg-forest text-white border-forest'
                         : 'border-line text-text-main hover:border-forest'
                     }`}
                   >
-                    {date}
+                    {DAY_LABELS[day] || day}
                   </button>
                 ))}
               </div>
+              {selectedDate && (
+                <p className="text-xs text-text-secondary mt-3">
+                  Next pickup: {selectedDate.toDateString()}
+                </p>
+              )}
             </div>
 
-            {/* Pickup time */}
-            <div className="rounded-2xl border border-line bg-surface-cream p-5">
-              <p className="text-sm font-semibold text-text-main mb-3 flex items-center gap-2">
-                <Clock size={15} className="text-forest" />
-                Pickup Time Slot
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {PICKUP_TIMES.map((time) => (
-                  <button
-                    key={time}
-                    type="button"
-                    onClick={() => setPickupTime(time)}
-                    className={`rounded-full px-4 py-2 text-sm border transition-colors ${
-                      pickupTime === time
-                        ? 'bg-forest text-white border-forest'
-                        : 'border-line text-text-main hover:border-forest'
-                    }`}
-                  >
-                    {time}
-                  </button>
-                ))}
+            {/* Pickup time (fixed by farmer for this market) */}
+            {market?.pickupStart && (
+              <div className="rounded-2xl border border-line bg-surface-cream p-5">
+                <p className="text-sm font-semibold text-text-main mb-2 flex items-center gap-2">
+                  <Clock size={15} className="text-forest" />
+                  Pickup Time
+                </p>
+                <p className="text-sm text-text-secondary">
+                  {market.pickupStart} – {market.pickupEnd}
+                </p>
               </div>
-            </div>
+            )}
 
             {/* Notes */}
             <div className="rounded-2xl border border-line bg-surface-cream p-5">
@@ -282,7 +313,7 @@ export default function CartPage() {
             <button
               type="button"
               onClick={handlePlaceOrder}
-              disabled={isPlacing}
+              disabled={isPlacing || !selectedDay}
               className="w-full rounded-full bg-forest py-3 text-sm font-medium text-white hover:bg-forest-dark transition-colors disabled:opacity-60"
             >
               {isPlacing ? 'Placing Order...' : 'Place Order'}

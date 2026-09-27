@@ -1,9 +1,7 @@
-// src/components/shared/MarketMap.jsx
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// Pin-shaped marker (teardrop) for markets
 function pinIcon(color, size = 32) {
   return new L.DivIcon({
     className: 'custom-market-pin',
@@ -14,7 +12,7 @@ function pinIcon(color, size = 32) {
       </svg>
     `,
     iconSize: [size, size],
-    iconAnchor: [size / 2, size], // tip of the pin points at the coordinate
+    iconAnchor: [size / 2, size], 
     popupAnchor: [0, -size],
   })
 }
@@ -22,7 +20,6 @@ function pinIcon(color, size = 32) {
 const marketIcon = pinIcon('#1F4D3A', 30)
 const activeMarketIcon = pinIcon('#D6A84F', 38)
 
-// Blue "you are here" dot, Google-Maps style, with a soft pulse ring
 const userLocationIcon = new L.DivIcon({
   className: 'custom-user-location',
   html: `

@@ -17,31 +17,40 @@ export default function ProductCard({ product, className }) {
   const isSoldOut = product.status === 'sold_out'
 
   const { addItem } = useCartStore()
-  const { isFavorite, toggleFavorite } = useFavoritesStore()
+  const { isFavoriteProduct, toggleFavoriteProduct } = useFavoritesStore()
   const requireAuth = useRequireAuth()
-  const isFav = isFavorite(product.id)
+  const isFav = isFavoriteProduct(product.id)
 
   const handleToggleFavorite = requireAuth((e) => {
     e.preventDefault()
     e.stopPropagation()
-    toggleFavorite(product.id)
+    toggleFavoriteProduct(product.id)
     toast.success(isFav ? 'Removed from favorites' : 'Added to favorites')
   })
-
   const handleAddToCart = requireAuth((e) => {
     e.preventDefault()
     e.stopPropagation()
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      unit: product.unit,
-      farmer: product.farmer,
-      image: product.image,
-    })
+
+    const markets = product.farmerMarkets || []
+    if (markets.length > 1) {
+      toast.info('Please select a pickup market on the product page')
+      return
+    }
+
+    addItem(
+      {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        unit: product.unit,
+        farmer: product.farmer,
+        farmerId: product.farmerId,
+        image: product.image,
+      },
+      markets[0] || null
+    )
     toast.success(`${product.name} added to cart`)
   })
-
   return (
     <Link
       to={`/products/${product.id}`}

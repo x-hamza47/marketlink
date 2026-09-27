@@ -33,12 +33,12 @@ function ProductCard({ product }) {
   const isSoldOut = product.status === 'sold_out'
 
   const { addItem } = useCartStore()
-  const { isFavorite, toggleFavorite } = useFavoritesStore()
+  const { isFavoriteProduct, toggleFavoriteProduct } = useFavoritesStore()
   const requireAuth = useRequireAuth()
-  const isFav = isFavorite(product.id)
+  const isFav = isFavoriteProduct(product.id)
 
   const handleToggleFavorite = requireAuth(() => {
-    toggleFavorite(product.id)
+    toggleFavoriteProduct(product.id)
 
     toast.success(
       isFav
@@ -46,7 +46,6 @@ function ProductCard({ product }) {
         : 'Added to favorites'
     )
   })
-
   const handleAddToCart = requireAuth(() => {
     addItem({
       id: product.id,

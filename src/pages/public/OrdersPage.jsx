@@ -41,7 +41,7 @@ function canCancel(order) {
 
 function OrderCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-line bg-surface-cream p-5 animate-pulse">
+    <div className="rounded-2xl border border-line bg-surface-cream p-4 sm:p-5 animate-pulse">
       <div className="h-4 w-1/3 bg-line rounded mb-3" />
       <div className="h-3 w-1/2 bg-line rounded mb-2" />
       <div className="h-3 w-2/3 bg-line rounded" />
@@ -74,24 +74,23 @@ export default function OrdersPage() {
 
   return (
     <div className="bg-bg-ivory min-h-screen">
-      <div className="mx-auto max-w-4xl px-6 py-10 sm:py-14">
-        <div className="mb-8">
-          <h1 className="font-display text-3xl sm:text-4xl font-semibold text-text-main mb-2">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-8 sm:py-14">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-text-main mb-1.5 sm:mb-2">
             My Orders
           </h1>
-          <p className="text-text-secondary text-sm sm:text-base">
+          <p className="text-text-secondary text-xs sm:text-sm lg:text-base">
             Track your pre-orders and pickup status.
           </p>
         </div>
 
-        {/* Filter tabs */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex gap-2 mb-5 sm:mb-6 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap scrollbar-hide">
           {FILTER_TABS.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setActiveFilter(tab.value)}
               className={clsx(
-                'rounded-full px-4 py-2 text-sm font-medium border transition-colors',
+                'shrink-0 rounded-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-medium border transition-colors whitespace-nowrap',
                 activeFilter === tab.value
                   ? 'bg-forest text-white border-forest'
                   : 'border-line text-text-secondary hover:border-forest'
@@ -106,53 +105,54 @@ export default function OrdersPage() {
         {isError ? (
           <p className="text-sm text-error text-center py-16">Couldn't load your orders right now.</p>
         ) : isLoading ? (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {Array.from({ length: 3 }).map((_, i) => <OrderCardSkeleton key={i} />)}
           </div>
         ) : !filteredOrders || filteredOrders.length === 0 ? (
-          <div className="text-center py-16">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-forest/10 text-forest mx-auto mb-4">
-              <ShoppingBag size={28} />
+          <div className="text-center py-12 sm:py-16 px-4">
+            <span className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-forest/10 text-forest mx-auto mb-4">
+              <ShoppingBag size={24} className="sm:hidden" />
+              <ShoppingBag size={28} className="hidden sm:block" />
             </span>
-            <p className="text-text-main font-medium mb-1">No orders here yet</p>
-            <p className="text-sm text-text-secondary mb-6">
+            <p className="text-text-main font-medium mb-1 text-sm sm:text-base">No orders here yet</p>
+            <p className="text-xs sm:text-sm text-text-secondary mb-6">
               {activeFilter === 'all'
                 ? "You haven't placed any orders yet."
                 : 'Nothing matches this filter.'}
             </p>
             <Link
               to="/products"
-              className="inline-flex items-center gap-2 rounded-full bg-forest px-6 py-3 text-sm font-medium text-white hover:bg-forest-dark transition-colors"
+              className="inline-flex items-center gap-2 rounded-full bg-forest px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-white hover:bg-forest-dark transition-colors"
             >
               Explore Products
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {filteredOrders.map((order) => {
               const status = STATUS_LABEL[order.status]
               return (
                 <div
                   key={order.id}
-                  className="rounded-2xl border border-line bg-surface-cream p-5"
+                  className="rounded-2xl border border-line bg-surface-cream p-4 sm:p-5"
                 >
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div>
-                      <p className="text-sm font-semibold text-text-main">
+                  <div className="flex items-start justify-between gap-2 sm:gap-3 mb-3">
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-semibold text-text-main truncate">
                         #{order.id}
                       </p>
-                      <p className="text-xs text-text-secondary mt-0.5">
+                      <p className="text-[11px] sm:text-xs text-text-secondary mt-0.5 truncate">
                         {order.farmer} · {order.market}
                       </p>
                     </div>
-                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${status.className}`}>
+                    <span className={`shrink-0 rounded-full px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-semibold ${status.className}`}>
                       {status.text}
                     </span>
                   </div>
 
-                  <div className="flex items-start gap-2 mb-3 text-sm text-text-secondary">
-                    <Package size={14} className="mt-0.5 shrink-0 text-forest" />
-                    <p>
+                  <div className="flex items-start gap-2 mb-3 text-xs sm:text-sm text-text-secondary">
+                    <Package size={13} className="mt-0.5 shrink-0 text-forest sm:size-[14px]" />
+                    <p className="leading-snug">
                       {order.items.map((item, i) => (
                         <span key={i}>
                           {item.quantity} × {item.name}
@@ -162,7 +162,7 @@ export default function OrdersPage() {
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-text-secondary mb-4">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] sm:text-xs text-text-secondary mb-4">
                     <span className="flex items-center gap-1.5">
                       <Calendar size={12} />
                       {new Date(order.pickupDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
@@ -171,32 +171,32 @@ export default function OrdersPage() {
                       <Clock size={12} />
                       {order.pickupSlot}
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <MapPin size={12} />
-                      {order.market}
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <MapPin size={12} className="shrink-0" />
+                      <span className="truncate">{order.market}</span>
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-line">
-                    <span className="text-sm font-semibold text-forest">
+                  <div className="flex items-center justify-between gap-2 pt-3 border-t border-line">
+                    <span className="text-sm sm:text-base font-semibold text-forest shrink-0">
                       Rs. {order.total}
                     </span>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 sm:gap-4">
                       {canCancel(order) && (
                         <button
                           onClick={() => setOrderToCancel(order)}
-                          className="flex items-center gap-1 text-xs font-medium text-error hover:underline"
+                          className="flex items-center gap-1 text-[11px] sm:text-xs font-medium text-error hover:underline whitespace-nowrap"
                         >
                           <X size={12} />
-                          Cancel Order
+                          Cancel
                         </button>
                       )}
                       <button
                         onClick={() => setOrderToView(order)}
-                        className="flex items-center gap-1 text-xs font-medium text-forest hover:underline"
+                        className="flex items-center gap-1 text-[11px] sm:text-xs font-medium text-forest hover:underline whitespace-nowrap"
                       >
-                        View Details
+                        Details
                         <ChevronRight size={12} />
                       </button>
                     </div>
