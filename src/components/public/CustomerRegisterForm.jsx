@@ -30,7 +30,7 @@ export default function CustomerRegisterForm() {
       setTimeout(() => navigate('/login'), 1500)
     } catch (err) {
       setIsSubmitting(false)
-      const message = err.response?.data?.message || 'Registration failed. Try again.'
+      const message = err.response?.data?.error || err.response?.data?.message || 'Registration failed. Try again.'
       toast.error(message)
     }
   }
@@ -51,6 +51,7 @@ export default function CustomerRegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+      <input type="hidden" value="customer" {...register('role')} />
       <div>
         <label className="block text-xs font-semibold text-text-main mb-1.5">Full name</label>
         <div className="relative">
@@ -58,9 +59,8 @@ export default function CustomerRegisterForm() {
           <input
             placeholder="Ahmed Khan"
             {...register('name')}
-            className={`w-full rounded-xl border bg-surface-cream pl-10 pr-4 py-2.5 text-sm outline-none transition-colors ${
-              errors.name ? 'border-error focus:border-error' : 'border-line focus:border-forest'
-            }`}
+            className={`w-full rounded-xl border bg-surface-cream pl-10 pr-4 py-2.5 text-sm outline-none transition-colors ${errors.name ? 'border-error focus:border-error' : 'border-line focus:border-forest'
+              }`}
           />
         </div>
         {errors.name && <p className="text-error text-xs mt-1.5">{errors.name.message}</p>}
@@ -74,9 +74,8 @@ export default function CustomerRegisterForm() {
             type="email"
             placeholder="you@example.com"
             {...register('email')}
-            className={`w-full rounded-xl border bg-surface-cream pl-10 pr-4 py-2.5 text-sm outline-none transition-colors ${
-              errors.email ? 'border-error focus:border-error' : 'border-line focus:border-forest'
-            }`}
+            className={`w-full rounded-xl border bg-surface-cream pl-10 pr-4 py-2.5 text-sm outline-none transition-colors ${errors.email ? 'border-error focus:border-error' : 'border-line focus:border-forest'
+              }`}
           />
         </div>
         {errors.email && <p className="text-error text-xs mt-1.5">{errors.email.message}</p>}
@@ -90,9 +89,8 @@ export default function CustomerRegisterForm() {
             <input
               placeholder="0300-1234567"
               {...register('phone')}
-              className={`w-full rounded-xl border bg-surface-cream pl-10 pr-3 py-2.5 text-sm outline-none transition-colors ${
-                errors.phone ? 'border-error focus:border-error' : 'border-line focus:border-forest'
-              }`}
+              className={`w-full rounded-xl border bg-surface-cream pl-10 pr-3 py-2.5 text-sm outline-none transition-colors ${errors.phone ? 'border-error focus:border-error' : 'border-line focus:border-forest'
+                }`}
             />
           </div>
           {errors.phone && <p className="text-error text-xs mt-1.5">{errors.phone.message}</p>}
@@ -104,9 +102,8 @@ export default function CustomerRegisterForm() {
             <input
               placeholder="Karachi"
               {...register('address')}
-              className={`w-full rounded-xl border bg-surface-cream pl-10 pr-3 py-2.5 text-sm outline-none transition-colors ${
-                errors.address ? 'border-error focus:border-error' : 'border-line focus:border-forest'
-              }`}
+              className={`w-full rounded-xl border bg-surface-cream pl-10 pr-3 py-2.5 text-sm outline-none transition-colors ${errors.address ? 'border-error focus:border-error' : 'border-line focus:border-forest'
+                }`}
             />
           </div>
           {errors.address && <p className="text-error text-xs mt-1.5">{errors.address.message}</p>}
@@ -122,9 +119,8 @@ export default function CustomerRegisterForm() {
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               {...register('password')}
-              className={`w-full rounded-xl border bg-surface-cream pl-10 pr-9 py-2.5 text-sm outline-none transition-colors ${
-                errors.password ? 'border-error focus:border-error' : 'border-line focus:border-forest'
-              }`}
+              className={`w-full rounded-xl border bg-surface-cream pl-10 pr-9 py-2.5 text-sm outline-none transition-colors ${errors.password ? 'border-error focus:border-error' : 'border-line focus:border-forest'
+                }`}
             />
             <button
               type="button"
@@ -143,9 +139,8 @@ export default function CustomerRegisterForm() {
             type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
             {...register('confirmPassword')}
-            className={`w-full rounded-xl border bg-surface-cream px-3.5 py-2.5 text-sm outline-none transition-colors ${
-              errors.confirmPassword ? 'border-error focus:border-error' : 'border-line focus:border-forest'
-            }`}
+            className={`w-full rounded-xl border bg-surface-cream px-3.5 py-2.5 text-sm outline-none transition-colors ${errors.confirmPassword ? 'border-error focus:border-error' : 'border-line focus:border-forest'
+              }`}
           />
           {errors.confirmPassword && <p className="text-error text-xs mt-1.5">{errors.confirmPassword.message}</p>}
         </div>

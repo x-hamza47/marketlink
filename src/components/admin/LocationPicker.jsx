@@ -84,8 +84,6 @@ export default function LocationPicker({ value, onChange }) {
         if (!cancelled) setIsSearching(false)
       })
 
-    // Cleanup: if the query changes again before this request resolves,
-    // ignore the stale response when it eventually comes back.
     return () => {
       cancelled = true
     }
@@ -98,17 +96,18 @@ export default function LocationPicker({ value, onChange }) {
   }
 
   async function handleMapLocationChange(lat, lng) {
-    onChange({ lat, lng, address: value.address }) // update pin immediately
+    onChange({ lat, lng, address: value.address }) 
     try {
       const address = await reverseGeocode(lat, lng)
-      onChange({ lat, lng, address }) // then fill in the address once resolved
+      onChange({ lat, lng, address }) 
     } catch {
-      // Reverse geocoding failed — keep the coordinates, just skip the address fill.
+      console.log('Location Picker Error');
+      
     }
   }
 
   const hasPin = value?.lat != null && value?.lng != null
-  const center = hasPin ? [value.lat, value.lng] : [24.86, 67.05] // default: Karachi
+  const center = hasPin ? [value.lat, value.lng] : [24.86, 67.05]
 
   return (
     <div className="space-y-2">

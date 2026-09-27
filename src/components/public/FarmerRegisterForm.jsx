@@ -107,7 +107,7 @@ export default function FarmerRegisterForm() {
       setSuccess(true)
       toast.success('Application submitted!')
     } catch (err) {
-      const message = err.response?.data?.message || 'Registration failed. Try again.'
+      const message = err.response?.data?.error || err.response?.data?.message || 'Registration failed. Try again.'
       toast.error(message)
     }
     setIsSubmitting(false)
