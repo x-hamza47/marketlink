@@ -6,6 +6,7 @@ import { Sprout, Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react'
 import { loginSchema } from '@/schemas/authSchema'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
+import { loginRequest } from '@/services/authService'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -22,25 +23,22 @@ export default function LoginPage() {
   const onSubmit = async (data) => {
     setIsSubmitting(true)
     // --- LIVE API CALL (once backend exists) ---
-    // const user = await loginRequest(data)
 
-    // --- STATIC MOCK ---
-    await new Promise((resolve) => setTimeout(resolve, 700))
-    login({
-      id: 'usr_001',
-      name: 'Hamza Aamir',
-      email: data.email,
-      role: 'customer',
-      avatarUrl: null,
-    })
-    toast.success('Welcome back!')
+    try {
+      const { user, token } = await loginRequest(data);
+      login(user, token);
+      toast.success('Welcome back!')
+      navigate('/')
+    } catch (err) {
+      const message = err.response?.data?.message || 'Invalid email or password.'
+      toast.error(message)
+
+    }
     setIsSubmitting(false)
-    navigate('/')
   }
 
   return (
     <div className="min-h-screen bg-bg-ivory flex">
-      {/* Left — form */}
       <div className="flex-1 flex items-center justify-center px-6 py-14 sm:py-20">
         <div className="w-full max-w-sm">
           <Link to="/" className="flex items-center gap-2 mb-10">
@@ -71,9 +69,8 @@ export default function LoginPage() {
                   type="email"
                   placeholder="you@example.com"
                   {...register('email')}
-                  className={`w-full rounded-xl border bg-surface-cream pl-10 pr-4 py-2.5 text-sm outline-none transition-colors ${
-                    errors.email ? 'border-error focus:border-error' : 'border-line focus:border-forest'
-                  }`}
+                  className={`w-full rounded-xl border bg-surface-cream pl-10 pr-4 py-2.5 text-sm outline-none transition-colors ${errors.email ? 'border-error focus:border-error' : 'border-line focus:border-forest'
+                    }`}
                 />
               </div>
               {errors.email && <p className="text-error text-xs mt-1.5">{errors.email.message}</p>}
@@ -90,9 +87,8 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
                   {...register('password')}
-                  className={`w-full rounded-xl border bg-surface-cream pl-10 pr-11 py-2.5 text-sm outline-none transition-colors ${
-                    errors.password ? 'border-error focus:border-error' : 'border-line focus:border-forest'
-                  }`}
+                  className={`w-full rounded-xl border bg-surface-cream pl-10 pr-11 py-2.5 text-sm outline-none transition-colors ${errors.password ? 'border-error focus:border-error' : 'border-line focus:border-forest'
+                    }`}
                 />
                 <button
                   type="button"
@@ -125,7 +121,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right — visual */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden bg-charcoal items-center justify-center p-16">
         <div className="absolute top-0 right-0 w-96 h-96 bg-forest rounded-full blur-3xl opacity-40 translate-x-1/3 -translate-y-1/3" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-forest-light rounded-full blur-3xl opacity-30 -translate-x-1/3 translate-y-1/3" />

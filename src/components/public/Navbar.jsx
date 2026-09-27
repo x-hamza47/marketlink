@@ -4,6 +4,8 @@ import { Link, NavLink } from 'react-router-dom'
 import { Sprout, Menu, X, ShoppingCart } from 'lucide-react'
 import clsx from 'clsx'
 import { useCartStore } from '../../stores/cartStore'
+import { useAuthStore } from '../../stores/authStore'
+import AccountMenu from '../ui/AccountMenu'
 
 const NAV_LINKS = [
   { label: 'Home', path: '/' },
@@ -16,6 +18,7 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const totalItems = useCartStore((state) => state.getTotalItems())
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-surface-cream/95 backdrop-blur">
@@ -66,18 +69,25 @@ export default function Navbar() {
               </span>
             )}
           </Link>
-          <Link
-            to="/login"
-            className="rounded-full border border-line px-5 py-2 text-sm font-medium text-text-main hover:border-forest hover:text-forest transition-colors"
-          >
-            Log In
-          </Link>
-          <Link
-            to="/signup"
-            className="rounded-full bg-forest px-5 py-2 text-sm font-medium text-white hover:bg-forest-dark transition-colors"
-          >
-            Get Started
-          </Link>
+
+          {isAuthenticated ? (
+            <AccountMenu />
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="rounded-full border border-line px-5 py-2 text-sm font-medium text-text-main hover:border-forest hover:text-forest transition-colors"
+              >
+                Log In
+              </Link>
+              <Link
+                to="/signup"
+                className="rounded-full bg-forest px-5 py-2 text-sm font-medium text-white hover:bg-forest-dark transition-colors"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -114,20 +124,28 @@ export default function Navbar() {
             ))}
           </nav>
           <div className="mt-4 flex flex-col gap-2 border-t border-line pt-4">
-            <Link
-              to="/login"
-              onClick={() => setIsMobileOpen(false)}
-              className="rounded-full border border-line px-5 py-2.5 text-center text-sm font-medium text-text-main"
-            >
-              Log In
-            </Link>
-            <Link
-              to="/signup"
-              onClick={() => setIsMobileOpen(false)}
-              className="rounded-full bg-forest px-5 py-2.5 text-center text-sm font-medium text-white"
-            >
-              Get Started
-            </Link>
+            {isAuthenticated ? (
+              <div className="flex justify-center py-2">
+                <AccountMenu />
+              </div>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="rounded-full border border-line px-5 py-2.5 text-center text-sm font-medium text-text-main"
+                >
+                  Log In
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="rounded-full bg-forest px-5 py-2.5 text-center text-sm font-medium text-white"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

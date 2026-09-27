@@ -26,7 +26,11 @@ export default function AccountMenu() {
 
     function goToProfile() {
         setOpen(false)
-        navigate(`/${user?.role}/profile`)
+        if (user?.role === 'customer') {
+            navigate('/account/orders')
+        } else {
+            navigate(`/${user?.role}/profile`)
+        }
     }
 
     function handleLogout() {
