@@ -1,25 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  /* Light theme */
+  /* Core palette */
   --color-forest: #1F4D3A;
   --color-forest-dark: #15382B;
+  --color-forest-light: #2E6B4F;
   --color-olive: #718355;
   --color-amber: #D6A84F;
+  --color-amber-dark: #B8863A;
 
   --color-bg-ivory: #F8F6F0;
   --color-surface-cream: #FFFEFA;
+  --color-surface-sand: #F1EBDD;
 
   --color-text-main: #1F2521;
   --color-text-secondary: #6B746D;
+  --color-text-muted: #9CA39C;
 
-  --color-line: #DDE3DC;
+  --color-line: #E4E7E2;
+  --color-line-soft: #ECEEE9;
 
   --color-success: #3F7D55;
   --color-warning: #C98A3D;
   --color-error: #B85450;
 
-  /* Dark theme surfaces */
+  /* Dark surfaces */
   --color-charcoal: #0B1712;
   --color-dark-surface: #10251B;
   --color-deep-forest: #15382B;
@@ -27,14 +32,23 @@
   --color-warm-cream: #F1EBDD;
   --color-muted-stone: #A8B0AA;
 
-  /* Editorial typography */
+  /* Typography */
   --font-display: "Fraunces", "Georgia", serif;
   --font-body: "Inter", system-ui, sans-serif;
+
+  /* Radius scale, for consistency across cards/buttons */
+  --radius-card: 1.5rem;
+  --radius-pill: 999px;
+
+  /* Shadows, softer & warmer than default Tailwind grays */
+  --shadow-soft: 0 4px 24px -4px rgb(31 77 58 / 0.08);
+  --shadow-card: 0 8px 32px -8px rgb(31 77 58 / 0.12);
 }
 
 @layer base {
   html {
     font-family: var(--font-body);
+    scroll-behavior: smooth;
   }
 
   body {
@@ -44,5 +58,22 @@
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+}
+@layer utilities {
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

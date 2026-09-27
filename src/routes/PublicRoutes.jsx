@@ -1,0 +1,42 @@
+import { Routes, Route } from 'react-router-dom'
+import PublicLayout from '@/layouts/PublicLayout'
+import HomePage from '@/pages/public/HomePage'
+import ProductsPage from '@/pages/public/ProductsPage'
+import ProductDetailPage from '../pages/public/ProductDetailPage'
+import CartPage from '../pages/public/CartPage'
+import MarketsPage from '../pages/public/MarketsPage'
+import MarketDetailPage from '../pages/public/MarketDetailPage'
+import OrdersPage from '../pages/public/OrdersPage'
+import LoginPage from '../pages/public/LoginPage'
+import RegisterPage from '../pages/public/RegisterPage'
+
+function ComingSoon({ title }) {
+    return (
+        <div className="flex items-center justify-center h-64 text-text-secondary text-sm">
+            {title} — coming soon
+        </div>
+    )
+}
+
+export default function PublicRoutes() {
+    return (
+        <Routes>
+            <Route path="/" element={<PublicLayout />}>
+                <Route index element={<HomePage />} />
+                <Route path="markets" element={<MarketsPage />} />
+                <Route path="markets/:id" element={<MarketDetailPage />} />
+                <Route path="products" element={<ProductsPage />} />
+                <Route path="products/:id" element={<ProductDetailPage />} />
+                <Route path="account/orders" element={<OrdersPage />} />
+                <Route path="cart" element={<CartPage />} />
+                <Route path="login" element={<LoginPage />} />
+                <Route path="signup" element={<RegisterPage />} />
+                <Route path="farmers" element={<ComingSoon title="Farmers" />} />
+                <Route path="farmers/:id" element={<ComingSoon title="Farmer Detail" />} />
+                <Route path="how-it-works" element={<ComingSoon title="How It Works" />} />
+                <Route path="about" element={<ComingSoon title="About" />} />
+                <Route path="contact" element={<ComingSoon title="Contact" />} />
+            </Route>
+        </Routes>
+    )
+}

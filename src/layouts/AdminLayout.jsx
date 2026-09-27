@@ -12,8 +12,6 @@ import {
   LineChart,
   Tags,
   Megaphone,
-  Settings,
-  HelpCircle,
   UserCircle2,
 } from 'lucide-react'
 
