@@ -21,7 +21,7 @@ export default function Navbar() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-surface-cream/95 backdrop-blur">
+    <header className="sticky top-0 z-8888 border-b border-line bg-surface-cream/95 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">

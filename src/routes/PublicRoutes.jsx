@@ -9,6 +9,8 @@ import MarketDetailPage from '../pages/public/MarketDetailPage'
 import OrdersPage from '../pages/public/OrdersPage'
 import LoginPage from '../pages/public/LoginPage'
 import RegisterPage from '../pages/public/RegisterPage'
+import AboutPage from '../pages/public/AboutPage'
+import HowItWorksPage from '../pages/public/HowItWorksPage'
 
 function ComingSoon({ title }) {
     return (
@@ -33,8 +35,8 @@ export default function PublicRoutes() {
                 <Route path="signup" element={<RegisterPage />} />
                 <Route path="farmers" element={<ComingSoon title="Farmers" />} />
                 <Route path="farmers/:id" element={<ComingSoon title="Farmer Detail" />} />
-                <Route path="how-it-works" element={<ComingSoon title="How It Works" />} />
-                <Route path="about" element={<ComingSoon title="About" />} />
+                <Route path="how-it-works" element={<HowItWorksPage/>} />
+                <Route path="about" element={<AboutPage />} />
                 <Route path="contact" element={<ComingSoon title="Contact" />} />
             </Route>
         </Routes>

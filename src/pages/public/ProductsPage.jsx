@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Search, SlidersHorizontal, X } from 'lucide-react'
+import { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useProducts, usePublicCategories } from '@/features/public/useProducts'
 import { useDebounce } from '@/hooks/useDebounce'
 import ProductCard from '@/components/public/ProductCard'
@@ -26,29 +27,52 @@ const SORT_OPTIONS = [
 ]
 
 export default function ProductsPage() {
-  const [search, setSearch] = useState('')
-  const [category, setCategory] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
-  const [inStockOnly, setInStockOnly] = useState(false)
-  const [sort, setSort] = useState('')
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [params, setParams] = useSearchParams()
+
+  const search = params.get('search') || ''
+  const category = params.get('category') || ''
+  const maxPrice = params.get('maxPrice') || ''
+  const inStockOnly = params.get('inStockOnly') === 'true'
+  const sort = params.get('sort') || ''
+  const page = Number(params.get('page')) || 1
 
   const debouncedSearch = useDebounce(search, 400)
+
+  // Any filter change (not page) resets back to page 1
+  function updateParams(patch, resetPage = true) {
+    const next = new URLSearchParams(params)
+    Object.entries(patch).forEach(([key, value]) => {
+      if (value === '' || value === false || value == null) next.delete(key)
+      else next.set(key, String(value))
+    })
+    if (resetPage) next.delete('page')
+    setParams(next, { replace: true })
+  }
+
   const { data: categories } = usePublicCategories()
-  const { data: products, isLoading, isError } = useProducts({
+  const { data, isLoading, isError, isFetching } = useProducts({
     search: debouncedSearch,
     category,
     maxPrice,
     inStockOnly,
     sort,
+    page,
   })
+
+  const products = data?.items ?? []
+  const totalPages = data?.pages ?? 1
+
+  // If a filter change makes the current page invalid, snap back to page 1
+  useEffect(() => {
+    if (data && page > data.pages && data.pages > 0) {
+      updateParams({ page: 1 }, false)
+    }
+  }, [data])
 
   const activeFilterCount = [category, maxPrice, inStockOnly].filter(Boolean).length
 
   const clearFilters = () => {
-    setCategory('')
-    setMaxPrice('')
-    setInStockOnly(false)
+    updateParams({ category: '', maxPrice: '', inStockOnly: '' })
   }
 
   const FilterPanel = (
@@ -57,7 +81,7 @@ export default function ProductsPage() {
         <p className="text-sm font-semibold text-text-main mb-3">Category</p>
         <div className="space-y-2">
           <button
-            onClick={() => setCategory('')}
+            onClick={() => updateParams({ category: '' })}
             className={clsx(
               'block w-full text-left text-sm px-3 py-2 rounded-lg transition-colors',
               category === '' ? 'bg-forest/10 text-forest font-medium' : 'text-text-secondary hover:bg-bg-ivory'
@@ -68,7 +92,7 @@ export default function ProductsPage() {
           {categories?.map((cat) => (
             <button
               key={cat}
-              onClick={() => setCategory(cat)}
+              onClick={() => updateParams({ category: cat })}
               className={clsx(
                 'block w-full text-left text-sm px-3 py-2 rounded-lg transition-colors',
                 category === cat ? 'bg-forest/10 text-forest font-medium' : 'text-text-secondary hover:bg-bg-ivory'
@@ -85,7 +109,7 @@ export default function ProductsPage() {
         <input
           type="number"
           value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
+          onChange={(e) => updateParams({ maxPrice: e.target.value })}
           placeholder="e.g. 500"
           className="w-full rounded-lg border border-line bg-surface-cream px-3 py-2 text-sm outline-none focus:border-forest"
         />
@@ -95,7 +119,7 @@ export default function ProductsPage() {
         <input
           type="checkbox"
           checked={inStockOnly}
-          onChange={(e) => setInStockOnly(e.target.checked)}
+          onChange={(e) => updateParams({ inStockOnly: e.target.checked })}
           className="h-4 w-4 rounded border-line accent-forest"
         />
         <span className="text-sm text-text-main">In stock only</span>
@@ -124,14 +148,13 @@ export default function ProductsPage() {
           </p>
         </div>
 
-        {/* Search + sort + mobile filter toggle */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <div className="flex-1 flex items-center gap-2 rounded-full border border-line bg-surface-cream px-4 py-2.5">
             <Search size={18} className="text-text-secondary shrink-0" />
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => updateParams({ search: e.target.value })}
               placeholder="Search products or farmers..."
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-text-secondary"
             />
@@ -139,7 +162,7 @@ export default function ProductsPage() {
 
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value)}
+            onChange={(e) => updateParams({ sort: e.target.value })}
             className="rounded-full border border-line bg-surface-cream px-4 py-2.5 text-sm outline-none focus:border-forest"
           >
             {SORT_OPTIONS.map((opt) => (
@@ -148,7 +171,7 @@ export default function ProductsPage() {
           </select>
 
           <button
-            onClick={() => setIsFilterOpen(true)}
+            onClick={() => document.getElementById('mobile-filter-drawer')?.classList.remove('hidden')}
             className="lg:hidden flex items-center justify-center gap-2 rounded-full border border-line bg-surface-cream px-4 py-2.5 text-sm font-medium"
           >
             <SlidersHorizontal size={16} />
@@ -162,26 +185,27 @@ export default function ProductsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-8">
-          {/* Desktop sidebar */}
           <aside className="hidden lg:block">{FilterPanel}</aside>
 
-          {/* Mobile filter drawer */}
-          {isFilterOpen && (
-            <div className="lg:hidden fixed inset-0 z-50 flex">
-              <div className="absolute inset-0 bg-charcoal/40" onClick={() => setIsFilterOpen(false)} />
-              <div className="relative ml-auto h-full w-72 bg-surface-cream p-5 overflow-y-auto">
-                <div className="flex items-center justify-between mb-5">
-                  <p className="font-semibold text-text-main">Filters</p>
-                  <button onClick={() => setIsFilterOpen(false)} aria-label="Close filters">
-                    <X size={18} />
-                  </button>
-                </div>
-                {FilterPanel}
+          <div id="mobile-filter-drawer" className="hidden lg:hidden fixed inset-0 z-50">
+            <div
+              className="absolute inset-0 bg-charcoal/40"
+              onClick={() => document.getElementById('mobile-filter-drawer')?.classList.add('hidden')}
+            />
+            <div className="relative ml-auto h-full w-72 bg-surface-cream p-5 overflow-y-auto">
+              <div className="flex items-center justify-between mb-5">
+                <p className="font-semibold text-text-main">Filters</p>
+                <button
+                  onClick={() => document.getElementById('mobile-filter-drawer')?.classList.add('hidden')}
+                  aria-label="Close filters"
+                >
+                  <X size={18} />
+                </button>
               </div>
+              {FilterPanel}
             </div>
-          )}
+          </div>
 
-          {/* Product grid */}
           <div>
             {isError ? (
               <p className="text-sm text-error text-center py-16">Couldn't load products right now.</p>
@@ -195,11 +219,40 @@ export default function ProductsPage() {
                 <p className="text-sm text-text-secondary">Try adjusting your filters or search.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              <>
+                <div className={clsx(
+                  'grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 transition-opacity',
+                  isFetching && 'opacity-60'
+                )}>
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-10">
+                    <button
+                      onClick={() => updateParams({ page: page - 1 }, false)}
+                      disabled={page <= 1}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-text-main hover:border-forest disabled:opacity-40 disabled:pointer-events-none"
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <span className="text-sm text-text-secondary px-2">
+                      Page {page} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => updateParams({ page: page + 1 }, false)}
+                      disabled={page >= totalPages}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-text-main hover:border-forest disabled:opacity-40 disabled:pointer-events-none"
+                      aria-label="Next page"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

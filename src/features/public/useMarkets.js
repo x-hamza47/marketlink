@@ -16,14 +16,14 @@ export function useMarketDetail(marketId) {
   })
 }
 
-export function useMarketProducts(marketId) {
+export function useMarketProducts(marketId, { page = 1, limit = 12 } = {}) {
   return useQuery({
-    queryKey: ['marketProducts', marketId],
-    queryFn: () => getMarketProducts(marketId),
+    queryKey: ['marketProducts', marketId, page, limit],
+    queryFn: () => getMarketProducts(marketId, { page, limit }),
     enabled: !!marketId,
+    placeholderData: (prev) => prev,
   })
 }
-
 export function useMarketFarmers(marketId) {
   return useQuery({
     queryKey: ['marketFarmers', marketId],

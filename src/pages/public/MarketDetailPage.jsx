@@ -1,7 +1,6 @@
-// src/pages/public/MarketDetailPage.jsx
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { MapPin, Users, Clock, Calendar, ChevronRight, ShoppingBasket } from 'lucide-react'
+import { useParams, useSearchParams, Link } from 'react-router-dom'
+import { MapPin, Users, Clock, Calendar, ChevronRight, ShoppingBasket, ChevronLeft } from 'lucide-react'
 import {
   useMarketDetail,
   useMarketProducts,
@@ -15,12 +14,28 @@ import { useGeolocation } from '@/hooks/useGeolocation'
 
 export default function MarketDetailPage() {
   const { id } = useParams()
+  const [params, setParams] = useSearchParams()
+  const productsPage = Number(params.get('page')) || 1
+
   const { data: market, isLoading, isError } = useMarketDetail(id)
-  const { data: products, isLoading: productsLoading } = useMarketProducts(id)
+
+const { data: productsData, isLoading: productsLoading, isFetching: productsFetching } =
+  useMarketProducts(id, { page: productsPage, limit: 3 })
   const { data: farmers, isLoading: farmersLoading } = useMarketFarmers(id)
   const { location } = useGeolocation()
 
-  const [activeTab, setActiveTab] = useState('products') // 'products' | 'farmers'
+  const [activeTab, setActiveTab] = useState('products')
+
+  const products = productsData?.items ?? []
+  const totalProducts = productsData?.total ?? 0
+  const totalPages = productsData?.pages ?? 1
+
+  function goToProductsPage(nextPage) {
+    const next = new URLSearchParams(params)
+    if (nextPage <= 1) next.delete('page')
+    else next.set('page', String(nextPage))
+    setParams(next, { replace: true })
+  }
 
   if (isLoading) {
     return (
@@ -57,9 +72,13 @@ export default function MarketDetailPage() {
           <span className="text-text-main">{market.name}</span>
         </div>
 
-        {/* Banner image */}
+        {/* Banner */}
         <div className="relative rounded-3xl overflow-hidden h-52 sm:h-72 bg-surface-sand mb-8">
-          <img src={market.image} alt={market.name} className="h-full w-full object-cover" />
+          {market.image ? (
+            <img src={market.image} alt={market.name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full bg-gradient-to-br from-forest to-forest-dark" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent" />
           <div className="absolute bottom-5 left-6 right-6">
             <h1 className="font-display text-2xl sm:text-3xl font-semibold text-white mb-1">
@@ -80,7 +99,7 @@ export default function MarketDetailPage() {
             </span>
             <p className="text-xs text-text-secondary">Open Days</p>
             <p className="text-sm font-semibold text-text-main">
-              {market.operatingDays.join(', ')}
+              {(market.operatingDays || []).join(', ')}
             </p>
           </div>
 
@@ -90,7 +109,7 @@ export default function MarketDetailPage() {
             </span>
             <p className="text-xs text-text-secondary">Hours</p>
             <p className="text-sm font-semibold text-text-main">
-              {market.openingTime} – {market.closingTime}
+              {market.timings?.open} – {market.timings?.close}
             </p>
           </div>
 
@@ -99,7 +118,9 @@ export default function MarketDetailPage() {
               <Users size={16} />
             </span>
             <p className="text-xs text-text-secondary">Farmers</p>
-            <p className="text-sm font-semibold text-text-main">{market.farmers}</p>
+            <p className="text-sm font-semibold text-text-main">
+              {farmersLoading ? '…' : farmers?.length ?? 0}
+            </p>
           </div>
 
           <div className="rounded-2xl border border-line bg-surface-cream p-4">
@@ -107,7 +128,9 @@ export default function MarketDetailPage() {
               <ShoppingBasket size={16} />
             </span>
             <p className="text-xs text-text-secondary">Products Listed</p>
-            <p className="text-sm font-semibold text-text-main">{market.products}</p>
+            <p className="text-sm font-semibold text-text-main">
+              {productsLoading ? '…' : totalProducts}
+            </p>
           </div>
         </div>
 
@@ -118,9 +141,9 @@ export default function MarketDetailPage() {
           </h2>
           <div className="h-72 sm:h-96 rounded-3xl overflow-hidden">
             <MarketMap
-            userLocation={location}
+              userLocation={location}
               markets={[market]}
-              selectedMarketId={market.id}
+              selectedMarketId={market._id}
               renderPopup={() => (
                 <div className="text-sm">
                   <p className="font-medium text-text-main">{market.name}</p>
@@ -142,7 +165,7 @@ export default function MarketDetailPage() {
                 : 'border-transparent text-text-secondary hover:text-text-main'
             )}
           >
-            Products ({products?.length ?? 0})
+            Products ({totalProducts})
           </button>
           <button
             onClick={() => setActiveTab('farmers')}
@@ -166,16 +189,45 @@ export default function MarketDetailPage() {
                   <div key={i} className="h-56 bg-surface-cream border border-line rounded-2xl animate-pulse" />
                 ))}
               </div>
-            ) : !products || products.length === 0 ? (
+            ) : products.length === 0 ? (
               <p className="text-sm text-text-secondary text-center py-16">
                 No products listed for this market yet.
               </p>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              <>
+                <div className={clsx(
+                  'grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 transition-opacity',
+                  productsFetching && 'opacity-60'
+                )}>
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-10">
+                    <button
+                      onClick={() => goToProductsPage(productsPage - 1)}
+                      disabled={productsPage <= 1}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-text-main hover:border-forest disabled:opacity-40 disabled:pointer-events-none"
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <span className="text-sm text-text-secondary px-2">
+                      Page {productsPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => goToProductsPage(productsPage + 1)}
+                      disabled={productsPage >= totalPages}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-text-main hover:border-forest disabled:opacity-40 disabled:pointer-events-none"
+                      aria-label="Next page"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}

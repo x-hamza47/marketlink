@@ -7,7 +7,16 @@ import { useDebounce } from '@/hooks/useDebounce'
 import MarketMap from '@/components/shared/MarketMap'
 import { cn } from '@/lib/utils'
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const DAY_OPTIONS = [
+    { value: 'Mon', label: 'Monday' },
+    { value: 'Tue', label: 'Tuesday' },
+    { value: 'Wed', label: 'Wednesday' },
+    { value: 'Thu', label: 'Thursday' },
+    { value: 'Fri', label: 'Friday' },
+    { value: 'Sat', label: 'Saturday' },
+    { value: 'Sun', label: 'Sunday' },
+]
+
 const DISTANCE_OPTIONS = [
     { label: 'Any distance', value: '' },
     { label: 'Within 5 km', value: '5' },
@@ -87,14 +96,14 @@ export default function MarketsPage() {
                     >
                         Any Day
                     </button>
-                    {DAYS.map((d) => (
+                    {DAY_OPTIONS.map((opt) => (
                         <button
-                            key={d}
-                            onClick={() => setDay(d)}
-                            className={`rounded-full px-3 py-1.5 text-xs border transition-colors ${day === d ? 'bg-forest text-white border-forest' : 'border-line text-text-secondary hover:border-forest'
+                            key={opt.value}
+                            onClick={() => setDay(opt.value)}
+                            className={`rounded-full px-3 py-1.5 text-xs border transition-colors ${day === opt.value ? 'bg-forest text-white border-forest' : 'border-line text-text-secondary hover:border-forest'
                                 }`}
                         >
-                            {d.slice(0, 3)}
+                            {opt.value}
                         </button>
                     ))}
                 </div>
@@ -188,19 +197,19 @@ export default function MarketsPage() {
                                 <p className="text-sm text-error text-center py-10">Couldn't load markets.</p>
                             ) : isLoading ? (
                                 Array.from({ length: 4 }).map((_, i) => <MarketCardSkeleton key={i} />)
-                            ) : markets.length === 0 ? (
+                            ) : !markets || markets.length === 0 ? (
                                 <p className="text-sm text-text-secondary text-center py-10">No markets found.</p>
                             ) : (
                                 <>
                                     <p className="text-sm text-text-secondary mb-1">{markets.length} markets found</p>
                                     {markets.map((market) => (
                                         <div
-                                            key={market.id}
-                                            id={`market-card-${market.id}`}
-                                            onClick={() => setSelectedMarketId(market.id)}
+                                            key={market._id}
+                                            id={`market-card-${market._id}`}
+                                            onClick={() => setSelectedMarketId(market._id)}
                                             className={cn(
                                                 'rounded-2xl border bg-surface-cream p-4 transition-colors cursor-pointer',
-                                                selectedMarketId === market.id ? 'border-forest bg-forest/5' : 'border-line hover:border-forest/40'
+                                                selectedMarketId === market._id ? 'border-forest bg-forest/5' : 'border-line hover:border-forest/40'
                                             )}
                                         >
                                             <div className="flex items-start justify-between gap-2 mb-1.5">
@@ -216,17 +225,21 @@ export default function MarketsPage() {
                                                 {market.address}
                                             </p>
                                             <div className="flex items-center justify-between text-xs text-text-secondary mb-3">
-                                                <span>{market.operatingDays.join(', ')} · {market.openingTime} – {market.closingTime}</span>
+                                                <span>
+                                                    {(market.operatingDays || []).join(', ')} · {market.timings?.open} – {market.timings?.close}
+                                                </span>
                                             </div>
                                             <div className="flex items-center justify-between">
-                                                <span className="flex items-center gap-1 text-xs text-text-secondary">
-                                                    <Users size={12} />
-                                                    {market.farmers} Farmers
-                                                </span>
+                                                {market.farmers != null && (
+                                                    <span className="flex items-center gap-1 text-xs text-text-secondary">
+                                                        <Users size={12} />
+                                                        {market.farmers} Farmers
+                                                    </span>
+                                                )}
                                                 <Link
-                                                    to={`/markets/${market.id}`}
+                                                    to={`/markets/${market._id}`}
                                                     onClick={(e) => e.stopPropagation()}
-                                                    className="rounded-full bg-forest px-4 py-1.5 text-xs font-medium text-white hover:bg-forest-dark transition-colors"
+                                                    className="rounded-full bg-forest px-4 py-1.5 text-xs font-medium text-white hover:bg-forest-dark transition-colors ml-auto"
                                                 >
                                                     View Market
                                                 </Link>
@@ -246,7 +259,6 @@ export default function MarketsPage() {
                                     selectedMarketId={selectedMarketId}
                                     onSelectMarket={(id) => {
                                         setSelectedMarketId(id)
-                                        // Scroll the matching list card into view when a pin is clicked
                                         document.getElementById(`market-card-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
                                     }}
                                     renderPopup={(market) => (
@@ -258,7 +270,7 @@ export default function MarketsPage() {
                                                     {market.distanceKm.toFixed(1)} km away
                                                 </p>
                                             )}
-                                            <Link to={`/markets/${market.id}`} className="text-xs font-medium text-forest hover:underline">
+                                            <Link to={`/markets/${market._id}`} className="text-xs font-medium text-forest hover:underline">
                                                 View Market →
                                             </Link>
                                         </div>

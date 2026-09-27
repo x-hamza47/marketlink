@@ -90,10 +90,12 @@ export default function ProductCard({ product, className }) {
         </div>
 
         <div className="flex items-center justify-between mt-2">
-          <span className="flex items-center gap-1 text-xs text-text-secondary">
-            <Star size={12} className="fill-amber text-amber" />
-            {product.rating} ({product.reviews})
-          </span>
+          {product.rating != null && (
+            <span className="flex items-center gap-1 text-xs text-text-secondary">
+              <Star size={12} className="fill-amber text-amber" />
+              {product.rating} ({product.reviews})
+            </span>
+          )}
           {!isSoldOut && (
             <span className="text-[11px] text-text-secondary">
               {product.stock} {product.unit} left

@@ -53,9 +53,9 @@ export default function MarketPreviewMap({ markets = [], userLocation, nearestMa
 
         {markets.map((market) => (
           <Marker
-            key={market.id}
+            key={market._id}
             position={[market.lat, market.lng]}
-            icon={market.id === nearestMarketId ? nearestMarketIcon : marketIcon}
+            icon={market._id === nearestMarketId ? nearestMarketIcon : marketIcon}
           />
         ))}
       </MapContainer>

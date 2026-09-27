@@ -1,10 +1,5 @@
 import { useState, useEffect } from 'react'
 
-/**
- * Requests the browser's geolocation once on mount (if permission allows).
- * Returns { location: [lat, lng] | null, status: 'idle' | 'loading' | 'granted' | 'denied' | 'unsupported' }
- * Consumers can also call `requestLocation()` manually (e.g. from a "Use my location" button).
- */
 export function useGeolocation() {
   const [location, setLocation] = useState(null)
   const [status, setStatus] = useState('idle')
@@ -27,7 +22,6 @@ export function useGeolocation() {
 
   useEffect(() => {
     requestLocation()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return { location, status, requestLocation }

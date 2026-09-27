@@ -110,7 +110,7 @@ export default function ProductDetailPage() {
   const isFav = isFavorite(product.id)
   const avgRating = reviews?.length
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
-    : product.rating
+    : product.rating ?? '-'
 
   const handleAddToCart = requireAuth(() => {
     addItem({
@@ -178,21 +178,25 @@ export default function ProductDetailPage() {
             </p>
 
             {/* Market info */}
-            <div className="flex items-center gap-4 mb-6 p-3.5 rounded-xl bg-surface-cream border border-line">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-forest/10 text-forest">
-                <MapPin size={16} />
-              </span>
-              <div>
-                <p className="text-xs text-text-secondary">Available at</p>
-                <Link to={`/markets/${product.marketId}`} className="text-sm font-medium text-text-main hover:text-forest">
-                  View market details
-                </Link>
+            {product.marketId && (
+              <div className="flex items-center gap-4 mb-6 p-3.5 rounded-xl bg-surface-cream border border-line">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-forest/10 text-forest">
+                  <MapPin size={16} />
+                </span>
+                <div>
+                  <p className="text-xs text-text-secondary">Available at</p>
+                  <Link to={`/markets/${product.marketId}`} className="text-sm font-medium text-text-main hover:text-forest">
+                    View market details
+                  </Link>
+                </div>
+                {product.marketDay && (
+                  <span className="flex items-center gap-1.5 ml-auto text-xs text-text-secondary">
+                    <Calendar size={13} />
+                    {product.marketDay}
+                  </span>
+                )}
               </div>
-              <span className="flex items-center gap-1.5 ml-auto text-xs text-text-secondary">
-                <Calendar size={13} />
-                {product.marketDay}
-              </span>
-            </div>
+            )}
 
             {/* Quantity + actions */}
             <div className="flex items-center gap-3 mb-4">

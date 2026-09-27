@@ -1,93 +1,78 @@
 import axiosClient from './axiosClient'
 
-const MOCK_FEATURED_PRODUCTS = [
-  { id: 'PRD-401', name: 'Fresh Tomatoes', farmer: 'Green Valley Farm', price: 250, unit: 'kg', stock: 35, rating: 4.8, reviews: 124, status: 'available', image: '/src/assets/images/products/tomatoes.jpg' },
-  { id: 'PRD-402', name: 'Spinach (Palak)', farmer: 'Organic Farms', price: 80, unit: 'bunch', stock: 20, rating: 4.7, reviews: 86, status: 'available', image: '/src/assets/images/products/spinach.jpg' },
-  { id: 'PRD-403', name: 'Farm Eggs (10pcs)', farmer: 'Happy Hens Farm', price: 300, unit: 'pack', stock: 12, rating: 4.9, reviews: 157, status: 'limited', image: '/src/assets/images/products/eggs.jpg' },
-  { id: 'PRD-404', name: 'Strawberries', farmer: 'Berry Fields', price: 450, unit: '250g', stock: 0, rating: 4.6, reviews: 64, status: 'sold_out', image: '/src/assets/images/products/strawberries.jpg' },
-]
 
-/**
- * Backend endpoint (planned): GET /public/products/featured
- */
+// Products
+
 export async function getFeaturedProducts() {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get('/public/products/featured')
-  // return data
-
-  // --- STATIC MOCK ---
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(MOCK_FEATURED_PRODUCTS), 300)
+  const { data } = await axiosClient.get('/products', {
+    params: { limit: 8, availableOnly: 'true', sort: '-createdAt' },
   })
+  return mapProducts(data.data.items)
 }
 
-const MOCK_ALL_PRODUCTS = [
-  { id: 'PRD-401', name: 'Fresh Tomatoes', farmer: 'Green Valley Farm', category: 'Vegetables', price: 250, unit: 'kg', stock: 35, rating: 4.8, reviews: 124, status: 'available', image: '/src/assets/images/products/tomatoes.jpg', marketId: 'MKT-301', marketDay: 'Sunday' },
-  { id: 'PRD-402', name: 'Spinach (Palak)', farmer: 'Organic Farms', category: 'Vegetables', price: 80, unit: 'bunch', stock: 20, rating: 4.7, reviews: 86, status: 'available', image: '/src/assets/images/products/spinach.jpg', marketId: 'MKT-302', marketDay: 'Saturday' },
-  { id: 'PRD-403', name: 'Farm Eggs (10pcs)', farmer: 'Happy Hens Farm', category: 'Dairy & Eggs', price: 300, unit: 'pack', stock: 12, rating: 4.9, reviews: 157, status: 'limited', image: '/src/assets/images/products/eggs.jpg', marketId: 'MKT-301', marketDay: 'Sunday' },
-  { id: 'PRD-404', name: 'Strawberries', farmer: 'Berry Fields', category: 'Fruits', price: 450, unit: '250g', stock: 0, rating: 4.6, reviews: 64, status: 'sold_out', image: '/src/assets/images/products/strawberries.jpg', marketId: 'MKT-303', marketDay: 'Daily' },
-  { id: 'PRD-405', name: 'Carrots', farmer: 'Green Valley Farm', category: 'Vegetables', price: 110, unit: 'kg', stock: 33, rating: 4.5, reviews: 41, status: 'available', image: '/src/assets/images/products/tomatoes.jpg', marketId: 'MKT-301', marketDay: 'Sunday' },
-  { id: 'PRD-406', name: 'Wild Honey', farmer: 'Golden Harvest', category: 'Honey & Preserves', price: 1200, unit: 'jar', stock: 6, rating: 4.9, reviews: 33, status: 'limited', image: '/src/assets/images/products/eggs.jpg', marketId: 'MKT-302', marketDay: 'Saturday' },
-  { id: 'PRD-407', name: 'Fresh Basil', farmer: 'Coastal Greens', category: 'Herbs', price: 60, unit: 'bunch', stock: 25, rating: 4.4, reviews: 19, status: 'available', image: '/src/assets/images/products/spinach.jpg', marketId: 'MKT-303', marketDay: 'Daily' },
-  { id: 'PRD-408', name: 'Sourdough Loaf', farmer: 'Herb & Root', category: 'Baked Goods', price: 480, unit: 'loaf', stock: 12, rating: 4.3, reviews: 27, status: 'available', image: '/src/assets/images/products/strawberries.jpg', marketId: 'MKT-302', marketDay: 'Saturday' },
-]
-
-const MOCK_CATEGORIES = ['Vegetables', 'Fruits', 'Dairy & Eggs', 'Herbs', 'Baked Goods', 'Honey & Preserves']
-
-/**
- * Backend endpoint (planned): GET /public/products
- * Query params: search, category, minPrice, maxPrice, inStockOnly, sort
- */
 export async function getProducts(filters = {}) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get('/public/products', { params: filters })
-  // return data
+  const { search, category, maxPrice, inStockOnly, sort, page = 1, limit = 24 } = filters
+  const sortMap = { price_asc: 'price', price_desc: '-price', rating: '-createdAt' }
 
-  // --- STATIC MOCK (filters applied client-side over the mock array) ---
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      let results = [...MOCK_ALL_PRODUCTS]
-
-      if (filters.search) {
-        const q = filters.search.toLowerCase()
-        results = results.filter(
-          (p) => p.name.toLowerCase().includes(q) || p.farmer.toLowerCase().includes(q)
-        )
-      }
-      if (filters.category) {
-        results = results.filter((p) => p.category === filters.category)
-      }
-      if (filters.maxPrice) {
-        results = results.filter((p) => p.price <= Number(filters.maxPrice))
-      }
-      if (filters.inStockOnly) {
-        results = results.filter((p) => p.status !== 'sold_out')
-      }
-      if (filters.sort === 'price_asc') {
-        results.sort((a, b) => a.price - b.price)
-      } else if (filters.sort === 'price_desc') {
-        results.sort((a, b) => b.price - a.price)
-      } else if (filters.sort === 'rating') {
-        results.sort((a, b) => b.rating - a.rating)
-      }
-
-      resolve(results)
-    }, 300)
+  const { data } = await axiosClient.get('/products', {
+    params: {
+      search: search || undefined,
+      category: category || undefined,
+      maxPrice: maxPrice || undefined,
+      availableOnly: inStockOnly ? 'true' : undefined,
+      sort: sortMap[sort] || undefined,
+      page,
+      limit,
+    },
   })
+
+  return {
+    items: mapProducts(data.data.items),
+    total: data.data.total,
+    page: data.data.page,
+    pages: data.data.pages,
+  }
 }
 
-/**
- * Backend endpoint (planned): GET /public/categories
- */
+export async function getProductById(productId) {
+  const { data } = await axiosClient.get(`/products/${productId}`)
+  return mapProduct(data.data)
+}
+
+function mapProduct(p) {
+  const stockQuantity = p.stockQuantity ?? 0
+  const status = !p.isAvailable || stockQuantity === 0
+    ? 'sold_out'
+    : stockQuantity < 5
+      ? 'limited'
+      : 'available'
+
+  return {
+    id: p._id,
+    name: p.name,
+    category: p.category,
+    price: p.price,
+    unit: p.unit,
+    stock: stockQuantity,
+    image: p.imageUrl || '',
+    farmer: p.farmerId?.userId?.name || 'Unknown farmer',
+    status,
+    rating: null,
+    reviews: 0,
+    marketId: null,
+    marketDay: null,
+  }
+}
+function mapProducts(items) {
+  return (items || []).map(mapProduct)
+}
+
+
 export async function getPublicCategories() {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get('/public/categories')
-  // return data
-
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(MOCK_CATEGORIES), 200)
-  })
+  const { data } = await axiosClient.get('/products/meta/categories')
+  return data.data
 }
+
 
 const MOCK_PRODUCT_REVIEWS = {
   'PRD-401': [
@@ -100,26 +85,7 @@ const MOCK_PRODUCT_REVIEWS = {
   ],
 }
 
-/**
- * Backend endpoint (planned): GET /public/products/:id
- */
-export async function getProductById(productId) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get(`/public/products/${productId}`)
-  // return data
 
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const product = MOCK_ALL_PRODUCTS.find((p) => p.id === productId)
-      if (product) resolve(product)
-      else reject(new Error('Product not found'))
-    }, 300)
-  })
-}
-
-/**
- * Backend endpoint (planned): GET /public/products/:id/reviews
- */
 export async function getProductReviews(productId) {
   // --- LIVE API CALL ---
   // const { data } = await axiosClient.get(`/public/products/${productId}/reviews`)
@@ -152,144 +118,60 @@ export async function addProductReview(productId, reviewData) {
   })
 }
 
-/**
- * Backend endpoint (planned): GET /public/products/:id/related
- */
 export async function getRelatedProducts(productId, category) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get(`/public/products/${productId}/related`)
-  // return data
-
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(MOCK_ALL_PRODUCTS.filter((p) => p.category === category && p.id !== productId).slice(0, 4))
-    }, 250)
-  })
+  if (!category) return []
+  const all = await getProducts({ category })
+  return all.filter((p) => p.id !== productId).slice(0, 4)
 }
 
-const MOCK_ALL_MARKETS = [
-  { id: 'MKT-301', name: 'Sunday Green Market', address: 'Gulshan-e-Iqbal, Karachi', lat: 24.885, lng: 67.03, operatingDays: ['Saturday', 'Sunday'], openingTime: '7:00 AM', closingTime: '1:00 PM', farmers: 32, products: 142, image: '/src/assets/images/markets/market1.jpg' },
-  { id: 'MKT-302', name: 'Community Fresh Market', address: 'Clifton, Karachi', lat: 24.845, lng: 67.065, operatingDays: ['Friday', 'Saturday'], openingTime: '8:00 AM', closingTime: '2:00 PM', farmers: 28, products: 96, image: '/src/assets/images/markets/market2.jpg' },
-  { id: 'MKT-303', name: 'Organic Bazar', address: 'DHA Phase 6, Karachi', lat: 24.82, lng: 67.01, operatingDays: ['Wednesday', 'Saturday', 'Sunday'], openingTime: '9:00 AM', closingTime: '3:00 PM', farmers: 18, products: 78, image: '/src/assets/images/markets/market3.jpg' },
-  { id: 'MKT-304', name: 'North Nazimabad Weekly Bazaar', address: 'North Nazimabad, Karachi', lat: 24.9342, lng: 67.0442, operatingDays: ['Sunday'], openingTime: '8:00 AM', closingTime: '12:00 PM', farmers: 5, products: 41, image: '/src/assets/images/markets/market4.jpg' },
-]
 
-// Haversine distance (km) — placeholder for what Mongo's $near/2dsphere
-// geospatial query will compute server-side once real coordinates + a
-// GeoJSON index exist. Kept client-side for now since markets is a small mock list.
-function distanceKm(lat1, lng1, lat2, lng2) {
-  const R = 6371
-  const dLat = ((lat2 - lat1) * Math.PI) / 180
-  const dLng = ((lng2 - lng1) * Math.PI) / 180
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-}
-
-/**
- * Backend endpoint (planned): GET /public/markets
- * Query params: lat, lng, maxDistanceKm, day, category, openNow
- *
- * Planned Mongo query once real geo data exists:
- *   Markets.find({
- *     location: {
- *       $near: {
- *         $geometry: { type: 'Point', coordinates: [lng, lat] },
- *         $maxDistance: maxDistanceKm * 1000,
- *       },
- *     },
- *     ...(day && { operatingDays: day }),
- *   })
- * Requires a 2dsphere index on Markets.location.
- */
 export async function getNearbyMarkets(filters = {}) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get('/public/markets', { params: filters })
-  // return data
+  const { lat, lng, maxDistanceKm, day, search } = filters
 
-  // --- STATIC MOCK (haversine distance computed client-side) ---
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      let results = MOCK_ALL_MARKETS.map((m) => ({
-        ...m,
-        distanceKm: filters.lat != null && filters.lng != null
-          ? distanceKm(filters.lat, filters.lng, m.lat, m.lng)
-          : null,
-      }))
+  if (lat == null || lng == null) {
+    const { data } = await axiosClient.get('/markets', {
+      params: { day, search },
+    })
+    return data.data
+  }
 
-      if (filters.search) {
-        const q = filters.search.toLowerCase()
-        results = results.filter(
-          (m) => m.name.toLowerCase().includes(q) || m.address.toLowerCase().includes(q)
-        )
-      }
-      if (filters.day) {
-        results = results.filter((m) => m.operatingDays.includes(filters.day))
-      }
-      if (filters.maxDistanceKm && filters.lat != null) {
-        results = results.filter((m) => m.distanceKm <= Number(filters.maxDistanceKm))
-      }
-
-      // Sort by distance when we have a user location, else by name
-      results.sort((a, b) =>
-        a.distanceKm != null && b.distanceKm != null
-          ? a.distanceKm - b.distanceKm
-          : a.name.localeCompare(b.name)
-      )
-
-      resolve(results)
-    }, 300)
+  const { data } = await axiosClient.get('/markets/near', {
+    params: {
+      lat,
+      lng,
+      radiusKm: maxDistanceKm || undefined,
+      day,
+      search,
+    },
   })
+  return data.data
 }
 
-/**
- * Backend endpoint (planned): GET /public/markets/:id
- */
+// ! Market Apis
 export async function getMarketById(marketId) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get(`/public/markets/${marketId}`)
-  // return data
-
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const market = MOCK_ALL_MARKETS.find((m) => m.id === marketId)
-      if (market) resolve(market)
-      else reject(new Error('Market not found'))
-    }, 300)
-  })
+  const { data } = await axiosClient.get(`/markets/${marketId}`)
+  return data.data
 }
 
-/**
- * Backend endpoint (planned): GET /public/markets/:id/products
- */
-export async function getMarketProducts(marketId) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get(`/public/markets/${marketId}/products`)
-  // return data
-
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(MOCK_ALL_PRODUCTS.filter((p) => p.marketId === marketId))
-    }, 250)
+export async function getMarketProducts(marketId, { page = 1, limit = 2 } = {}) {
+  const { data } = await axiosClient.get('/products', {
+    params: { marketId, page, limit, sort: '-createdAt' },
   })
+  return {
+    items: mapProducts(data.data.items),
+    total: data.data.total,
+    page: data.data.page,
+    pages: data.data.pages,
+  }
 }
-
-/**
- * Backend endpoint (planned): GET /public/markets/:id/farmers
- */
 export async function getMarketFarmers(marketId) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get(`/public/markets/${marketId}/farmers`)
-  // return data
-
-  // Mock: derive distinct farmer names from products at this market
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const names = [...new Set(MOCK_ALL_PRODUCTS.filter((p) => p.marketId === marketId).map((p) => p.farmer))]
-      resolve(names.map((name, i) => ({ id: `${marketId}-F${i}`, name, stall: name })))
-    }, 250)
+  // fetch a large page since we need the full set to derive distinct farmers, not just one page
+  const { items: products } = await getMarketProducts(marketId, { page: 1, limit: 200 })
+  const seen = new Map()
+  products.forEach((p) => {
+    if (!seen.has(p.farmer)) seen.set(p.farmer, { id: p.farmer, name: p.farmer, stall: p.farmer })
   })
+  return Array.from(seen.values())
 }
 
 // ================= Customer's own orders =================
@@ -374,5 +256,5 @@ export async function cancelCustomerOrder(orderId) {
 
 export async function getAllMarketsPublic() {
   const { data } = await axiosClient.get('/markets')
-  return data.data 
+  return data.data
 }
