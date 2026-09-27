@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useFarmerReviews, useFarmerReviewStats, useRespondToReview } from '@/features/farmer/useFarmerReviews'
 import Surface from '@/components/ui/Surface'
 import Stat from '@/components/ui/Stat'
 import Button from '@/components/ui/Button'
+import SearchInput from '@/components/ui/SearchInput'
+import Pagination from '@/components/ui/Pagination'
+import { useDebounce } from '@/hooks/useDebounce'
 import { formatDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { Star, MessageSquare, MessagesSquare } from 'lucide-react'
@@ -11,6 +14,15 @@ const STAT_CONFIG = [
   { key: 'total', label: 'Total Reviews', icon: MessagesSquare },
   { key: 'avgRating', label: 'Average Rating', icon: Star },
   { key: 'unanswered', label: 'Awaiting Response', icon: MessageSquare },
+]
+
+const RATING_OPTIONS = [
+  { value: '', label: 'All ratings' },
+  { value: '5', label: '5 stars' },
+  { value: '4', label: '4 stars' },
+  { value: '3', label: '3 stars' },
+  { value: '2', label: '2 stars' },
+  { value: '1', label: '1 star' },
 ]
 
 function StatSkeleton() {
@@ -121,8 +133,28 @@ function ReviewCard({ review, onRespond, isPending }) {
 
 export default function ReviewsPage() {
   const { data: stats, isLoading: statsLoading } = useFarmerReviewStats()
-  const { data: reviews, isLoading, isError } = useFarmerReviews()
   const respondMutation = useRespondToReview()
+
+  const [search, setSearch] = useState('')
+  const [rating, setRating] = useState('')
+  const [unansweredOnly, setUnansweredOnly] = useState(false)
+  const [page, setPage] = useState(1)
+
+  const debouncedSearch = useDebounce(search, 400)
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch, rating, unansweredOnly])
+
+  const queryParams = useMemo(
+    () => ({ search: debouncedSearch, rating, unansweredOnly, page, limit: 10 }),
+    [debouncedSearch, rating, unansweredOnly, page]
+  )
+
+  const { data, isLoading, isError } = useFarmerReviews(queryParams)
+  const reviews = data?.items ?? []
+  const totalPages = data?.pages ?? 1
+  const total = data?.total ?? 0
 
   function handleRespond(reviewId, response) {
     respondMutation.mutate({ reviewId, response })
@@ -140,30 +172,65 @@ export default function ReviewsPage() {
       </div>
 
       <Surface className="p-5">
-        <div className="mb-2">
-          <h2 className="font-display text-lg font-medium text-text-main">Customer Reviews</h2>
-          <p className="text-xs text-text-secondary mt-0.5">
-            Reviews left on your products
-          </p>
+        <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+          <div>
+            <h2 className="font-display text-lg font-medium text-text-main">Customer Reviews</h2>
+            <p className="text-xs text-text-secondary mt-0.5">
+              {total} reviews left on your products
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="flex items-center gap-1.5 text-xs text-text-secondary">
+              <input
+                type="checkbox"
+                checked={unansweredOnly}
+                onChange={(e) => setUnansweredOnly(e.target.checked)}
+                className="accent-forest"
+              />
+              Unanswered only
+            </label>
+            <select
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+              className="text-sm border border-line rounded-md px-3 py-2 bg-white text-text-main"
+            >
+              {RATING_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Search customer or product…"
+              className="w-64"
+            />
+          </div>
         </div>
 
         {isError ? (
           <p className="text-sm text-error py-6 text-center">Couldn't load reviews.</p>
         ) : isLoading ? (
           <div className="py-10 text-center text-sm text-text-secondary">Loading reviews…</div>
-        ) : !reviews?.length ? (
-          <div className="py-10 text-center text-sm text-text-secondary">No reviews yet.</div>
+        ) : reviews.length === 0 ? (
+          <div className="py-10 text-center text-sm text-text-secondary">No reviews match your filters.</div>
         ) : (
-          <div>
-            {reviews.map((review) => (
-              <ReviewCard
-                key={review.id}
-                review={review}
-                onRespond={handleRespond}
-                isPending={respondMutation.isPending && respondMutation.variables?.reviewId === review.id}
-              />
-            ))}
-          </div>
+          <>
+            <div>
+              {reviews.map((review) => (
+                <ReviewCard
+                  key={review.id}
+                  review={review}
+                  onRespond={handleRespond}
+                  isPending={respondMutation.isPending && respondMutation.variables?.reviewId === review.id}
+                />
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+            </div>
+          </>
         )}
       </Surface>
     </div>

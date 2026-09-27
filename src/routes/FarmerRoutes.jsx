@@ -18,7 +18,7 @@ function ComingSoon({ title }) {
 export default function FarmerRoutes() {
   return (
     <Routes>
-      <Route path="/farmer" element={<FarmerLayout />}>
+      <Route path="/" element={<FarmerLayout />}>
         <Route index element={<FarmerOverview />} />
         <Route path="products" element={<ProductsPage />} />
         <Route path="orders" element={<OrdersPage />} />

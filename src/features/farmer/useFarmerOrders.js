@@ -8,8 +8,11 @@ import { useAdminMutation } from '@/hooks/useAdminMutation'
 
 const KEY = 'farmer-orders'
 
-export function useFarmerOrders() {
-  return useQuery({ queryKey: [KEY], queryFn: getFarmerOrders })
+export function useFarmerOrders(params = {}) {
+  return useQuery({
+    queryKey: ['farmer-orders', params],
+    queryFn: () => getFarmerOrders(params),
+  });
 }
 
 export function useFarmerOrderStats() {

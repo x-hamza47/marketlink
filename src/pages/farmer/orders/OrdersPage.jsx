@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useFarmerOrders, useFarmerOrderStats, useUpdateFarmerOrderStatus } from '@/features/farmer/useFarmerOrders'
 import Surface from '@/components/ui/Surface'
 import Stat from '@/components/ui/Stat'
@@ -6,6 +6,8 @@ import Table from '@/components/ui/Table'
 import SearchInput from '@/components/ui/SearchInput'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Button from '@/components/ui/Button'
+import Pagination from '@/components/ui/Pagination'
+import { useDebounce } from '@/hooks/useDebounce'
 import { formatDate } from '@/lib/format'
 import {
     ClipboardList,
@@ -23,6 +25,16 @@ const STAT_CONFIG = [
     { key: 'pending', label: 'Awaiting Response', icon: Clock },
     { key: 'readyForPickup', label: 'Ready for Pickup', icon: PackageCheck },
     { key: 'completed', label: 'Completed', icon: CheckCircle2 },
+]
+
+const STATUS_OPTIONS = [
+    { value: '', label: 'All statuses' },
+    { value: 'placed', label: 'Placed' },
+    { value: 'accepted', label: 'Accepted' },
+    { value: 'ready_for_pickup', label: 'Ready for Pickup' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'declined', label: 'Declined' },
+    { value: 'cancelled', label: 'Cancelled' },
 ]
 
 function StatSkeleton() {
@@ -86,26 +98,33 @@ function OrderActions({ order, onUpdateStatus, isPending }) {
 
 export default function OrdersPage() {
     const { data: stats, isLoading: statsLoading } = useFarmerOrderStats()
-    const { data: orders, isLoading, isError } = useFarmerOrders()
     const updateStatus = useUpdateFarmerOrderStatus()
     const [viewingOrder, setViewingOrder] = useState(null)
 
     const [search, setSearch] = useState('')
+    const [status, setStatus] = useState('')
+    const [page, setPage] = useState(1)
 
-    const filtered = useMemo(() => {
-        if (!orders) return []
-        const q = search.trim().toLowerCase()
-        if (!q) return orders
-        return orders.filter(
-            (o) =>
-                o.id.toLowerCase().includes(q) ||
-                o.customer.toLowerCase().includes(q) ||
-                o.market.toLowerCase().includes(q)
-        )
-    }, [orders, search])
+    const debouncedSearch = useDebounce(search, 400)
 
-    function handleUpdateStatus(orderId, status) {
-        updateStatus.mutate({ orderId, status })
+    // Reset to page 1 whenever filters change, so we don't get stuck
+    // on an empty page after narrowing the result set.
+    useEffect(() => {
+        setPage(1)
+    }, [debouncedSearch, status])
+
+    const queryParams = useMemo(
+        () => ({ search: debouncedSearch, status, page, limit: 10 }),
+        [debouncedSearch, status, page]
+    )
+
+    const { data, isLoading, isError } = useFarmerOrders(queryParams)
+    const orders = data?.items ?? []
+    const totalPages = data?.pages ?? 1
+    const total = data?.total ?? 0
+
+    function handleUpdateStatus(orderId, newStatus) {
+        updateStatus.mutate({ orderId, status: newStatus })
     }
 
     return (
@@ -129,82 +148,101 @@ export default function OrdersPage() {
                     <div>
                         <h2 className="font-display text-lg font-medium text-text-main">Pre-Orders</h2>
                         <p className="text-xs text-text-secondary mt-0.5">
-                            {orders?.length ?? 0} orders placed against your stock
+                            {total} orders placed against your stock
                         </p>
                     </div>
-                    <SearchInput
-                        value={search}
-                        onChange={setSearch}
-                        placeholder="Search order, customer, market…"
-                        className="w-64"
-                    />
+                    <div className="flex items-center gap-2">
+                        <select
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            className="text-sm border border-line rounded-md px-3 py-2 bg-white text-text-main"
+                        >
+                            {STATUS_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                        <SearchInput
+                            value={search}
+                            onChange={setSearch}
+                            placeholder="Search order, customer, market…"
+                            className="w-64"
+                        />
+                    </div>
                 </div>
 
                 {isError ? (
                     <p className="text-sm text-error py-6 text-center">Couldn't load orders.</p>
                 ) : isLoading ? (
                     <div className="py-10 text-center text-sm text-text-secondary">Loading orders…</div>
-                ) : filtered.length === 0 ? (
+                ) : orders.length === 0 ? (
                     <div className="py-10 text-center text-sm text-text-secondary">No orders match your search.</div>
                 ) : (
-                    <Table>
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeadCell>Order</Table.HeadCell>
-                                <Table.HeadCell>Customer</Table.HeadCell>
-                                <Table.HeadCell>Market</Table.HeadCell>
-                                <Table.HeadCell>Items</Table.HeadCell>
-                                <Table.HeadCell>Total</Table.HeadCell>
-                                <Table.HeadCell>Pickup</Table.HeadCell>
-                                <Table.HeadCell>Status</Table.HeadCell>
-                                <Table.HeadCell className="text-right">Actions</Table.HeadCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {filtered.map((order) => (
-                                <Table.Row key={order.id}>
-                                    <Table.Cell className="font-medium text-forest">#{order.id}</Table.Cell>
-                                    <Table.Cell>{order.customer}</Table.Cell>
-                                    <Table.Cell className="text-text-secondary">{order.market}</Table.Cell>
-                                    <Table.Cell className="text-text-secondary">
-                                        {order.items.length} item{order.items.length !== 1 ? 's' : ''}
-                                    </Table.Cell>
-                                    <Table.Cell className="font-medium">Rs. {order.total.toLocaleString()}</Table.Cell>
-                                    <Table.Cell className="text-text-secondary">
-                                        {formatDate(order.pickupDate)}
-                                        <span className="block text-xs">{order.pickupSlot}</span>
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <StatusBadge status={order.status} />
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <div className="flex items-center justify-end gap-1.5">
-                                            <button
-                                                type="button"
-                                                onClick={() => setViewingOrder(order)}
-                                                className="p-1.5 rounded-md hover:bg-bg-ivory text-text-secondary"
-                                                aria-label="View order details"
-                                            >
-                                                <Eye className="w-4 h-4" strokeWidth={1.75} />
-                                            </button>
-                                            <OrderActions
-                                                order={order}
-                                                onUpdateStatus={handleUpdateStatus}
-                                                isPending={updateStatus.isPending && updateStatus.variables?.orderId === order.id}
-                                            />
-                                        </div>
-                                    </Table.Cell>
+                    <>
+                        <Table>
+                            <Table.Header>
+                                <Table.Row>
+                                    <Table.HeadCell>Order</Table.HeadCell>
+                                    <Table.HeadCell>Customer</Table.HeadCell>
+                                    <Table.HeadCell>Market</Table.HeadCell>
+                                    <Table.HeadCell>Items</Table.HeadCell>
+                                    <Table.HeadCell>Total</Table.HeadCell>
+                                    <Table.HeadCell>Pickup</Table.HeadCell>
+                                    <Table.HeadCell>Status</Table.HeadCell>
+                                    <Table.HeadCell className="text-right">Actions</Table.HeadCell>
                                 </Table.Row>
-                            ))}
-                        </Table.Body>
-                    </Table>
+                            </Table.Header>
+                            <Table.Body>
+                                {orders.map((order) => (
+                                    <Table.Row key={order.id}>
+                                        <Table.Cell className="font-medium text-forest">#{order.id}</Table.Cell>
+                                        <Table.Cell>{order.customer}</Table.Cell>
+                                        <Table.Cell className="text-text-secondary">{order.market}</Table.Cell>
+                                        <Table.Cell className="text-text-secondary">
+                                            {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                                        </Table.Cell>
+                                        <Table.Cell className="font-medium">Rs. {order.total.toLocaleString()}</Table.Cell>
+                                        <Table.Cell className="text-text-secondary">
+                                            {formatDate(order.pickupDate)}
+                                            <span className="block text-xs">{order.pickupSlot}</span>
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            <StatusBadge status={order.status} />
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            <div className="flex items-center justify-end gap-1.5">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setViewingOrder(order)}
+                                                    className="p-1.5 rounded-md hover:bg-bg-ivory text-text-secondary"
+                                                    aria-label="View order details"
+                                                >
+                                                    <Eye className="w-4 h-4" strokeWidth={1.75} />
+                                                </button>
+                                                <OrderActions
+                                                    order={order}
+                                                    onUpdateStatus={handleUpdateStatus}
+                                                    isPending={updateStatus.isPending && updateStatus.variables?.orderId === order.id}
+                                                />
+                                            </div>
+                                        </Table.Cell>
+                                    </Table.Row>
+                                ))}
+                            </Table.Body>
+                        </Table>
+
+                        <div className="mt-4 flex justify-end">
+                            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+                        </div>
+                    </>
                 )}
             </Surface>
             <OrderDetailModal
-  order={viewingOrder}
-  open={!!viewingOrder}
-  onClose={() => setViewingOrder(null)}
-/>
+                order={viewingOrder}
+                open={!!viewingOrder}
+                onClose={() => setViewingOrder(null)}
+            />
         </div>
     )
 }

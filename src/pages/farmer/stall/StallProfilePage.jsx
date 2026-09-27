@@ -20,8 +20,12 @@ function SectionSkeleton() {
 
 function MarketEntryCard({ index, control, register, errors, watch, setValue, remove, availableMarkets }) {
   const selectedDays = watch(`markets.${index}.operatingDays`) || []
+  const selectedMarketId = watch(`markets.${index}.marketId`)
+  const selectedMarket = availableMarkets.find((m) => m.id === selectedMarketId)
+  const allowedDays = selectedMarket?.operatingDays || []
 
   function toggleDay(day) {
+    if (!allowedDays.includes(day)) return
     const current = selectedDays
     if (current.includes(day)) {
       setValue(
@@ -62,6 +66,9 @@ function MarketEntryCard({ index, control, register, errors, watch, setValue, re
                 const market = availableMarkets.find((m) => m.id === e.target.value)
                 field.onChange(e.target.value)
                 setValue(`markets.${index}.marketName`, market?.name || '')
+                const currentDays = watch(`markets.${index}.operatingDays`) || []
+                const validDays = currentDays.filter((d) => market?.operatingDays?.includes(d))
+                setValue(`markets.${index}.operatingDays`, validDays, { shouldValidate: true })
               }}
               className={cn(
                 'w-full h-10 px-3 rounded-md border bg-surface-cream text-sm outline-none',
@@ -86,29 +93,37 @@ function MarketEntryCard({ index, control, register, errors, watch, setValue, re
           </p>
         )}
       </div>
-
-      {/* Operating days */}
       <div>
         <label className="block text-sm font-medium text-text-main mb-1.5">
           Operating Days <span className="text-error">*</span>
         </label>
         <div className="flex flex-wrap gap-2">
-          {DAYS.map((day) => (
-            <button
-              key={day}
-              type="button"
-              onClick={() => toggleDay(day)}
-              className={cn(
-                'px-3 py-1.5 rounded-md border text-xs font-medium transition-colors',
-                selectedDays.includes(day)
-                  ? 'bg-forest text-white border-forest'
-                  : 'bg-surface-cream text-text-secondary border-line hover:border-forest/40'
-              )}
-            >
-              {day}
-            </button>
-          ))}
+          {DAYS.map((day) => {
+            const isAllowed = allowedDays.includes(day)
+            return (
+              <button
+                key={day}
+                type="button"
+                disabled={!isAllowed}
+                onClick={() => toggleDay(day)}
+                title={!isAllowed ? 'Market does not operate this day' : undefined}
+                className={cn(
+                  'px-3 py-1.5 rounded-md border text-xs font-medium transition-colors',
+                  !isAllowed
+                    ? 'bg-line/30 text-text-secondary/40 border-line/60 cursor-not-allowed'
+                    : selectedDays.includes(day)
+                      ? 'bg-forest text-white border-forest'
+                      : 'bg-surface-cream text-text-secondary border-line hover:border-forest/40'
+                )}
+              >
+                {day}
+              </button>
+            )
+          })}
         </div>
+        {!selectedMarketId && (
+          <p className="text-xs text-text-secondary mt-1">Select a market first to see its operating days.</p>
+        )}
         {marketErrors?.operatingDays && (
           <p className="text-xs text-error mt-1">{marketErrors.operatingDays.message}</p>
         )}
@@ -121,6 +136,8 @@ function MarketEntryCard({ index, control, register, errors, watch, setValue, re
           <input
             {...register(`markets.${index}.pickupStart`)}
             type="time"
+            min={selectedMarket?.timings?.open}
+            max={selectedMarket?.timings?.close}
             className={cn(
               'w-full h-10 px-3 rounded-md border bg-surface-cream text-sm outline-none',
               marketErrors?.pickupStart ? 'border-error' : 'border-line focus:border-forest'
@@ -132,6 +149,8 @@ function MarketEntryCard({ index, control, register, errors, watch, setValue, re
           <input
             {...register(`markets.${index}.pickupEnd`)}
             type="time"
+            min={selectedMarket?.timings?.open}
+            max={selectedMarket?.timings?.close}
             className={cn(
               'w-full h-10 px-3 rounded-md border bg-surface-cream text-sm outline-none',
               marketErrors?.pickupEnd ? 'border-error' : 'border-line focus:border-forest'
@@ -209,7 +228,7 @@ export default function StallProfilePage() {
   if (isLoading) return <SectionSkeleton />
 
   return (
-    <form onSubmit={handleSubmit(onValid)} className="max-w-3xl space-y-6">
+    <form onSubmit={handleSubmit(onValid, (errs) => console.log('VALIDATION ERRORS', errs))} className="max-w-3xl space-y-6">
       {/* Stall basics */}
       <Surface className="p-6">
         <h2 className="font-display text-lg font-medium text-text-main mb-1">Stall Information</h2>

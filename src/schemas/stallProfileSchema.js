@@ -1,9 +1,8 @@
 import { z } from 'zod'
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 const marketEntrySchema = z.object({
-  id: z.string(),
   marketId: z.string().min(1, 'Select a market'),
   marketName: z.string(),
   operatingDays: z.array(z.enum(DAYS)).min(1, 'Select at least one operating day'),
@@ -15,7 +14,6 @@ const marketEntrySchema = z.object({
     .min(0, 'Cannot be negative')
     .max(48, 'Must be 48 hours or less'),
 })
-
 export const stallProfileSchema = z.object({
   stallName: z
     .string()
