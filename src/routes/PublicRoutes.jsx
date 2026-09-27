@@ -11,11 +11,13 @@ import LoginPage from '../pages/public/LoginPage'
 import RegisterPage from '../pages/public/RegisterPage'
 import AboutPage from '../pages/public/AboutPage'
 import HowItWorksPage from '../pages/public/HowItWorksPage'
+import FavoritesPage from '../pages/public/FavoritesPage'
+import FarmerDetailPage from '../pages/public/FarmerDetailPage'
 
 function ComingSoon({ title }) {
     return (
         <div className="flex items-center justify-center h-64 text-text-secondary text-sm">
-            {title} — coming soon
+            {title} - coming soon
         </div>
     )
 }
@@ -33,8 +35,9 @@ export default function PublicRoutes() {
                 <Route path="cart" element={<CartPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="signup" element={<RegisterPage />} />
+                <Route path="favorites" element={<FavoritesPage />} />
                 <Route path="farmers" element={<ComingSoon title="Farmers" />} />
-                <Route path="farmers/:id" element={<ComingSoon title="Farmer Detail" />} />
+                <Route path="farmers/:id" element={<FarmerDetailPage />} />
                 <Route path="how-it-works" element={<HowItWorksPage/>} />
                 <Route path="about" element={<AboutPage />} />
                 <Route path="contact" element={<ComingSoon title="Contact" />} />

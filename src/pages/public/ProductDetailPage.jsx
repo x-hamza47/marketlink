@@ -5,7 +5,6 @@ import {
   useProductDetail,
   useProductReviews,
   useRelatedProducts,
-  useAddProductReview,
 } from '@/features/public/useProductDetail'
 import { useCartStore } from '@/stores/cartStore'
 import { useFavoritesStore } from '@/stores/favoritesStore'
@@ -21,49 +20,6 @@ const STATUS_LABEL = {
   sold_out: { text: 'Sold Out', className: 'bg-error/10 text-error' },
 }
 
-function ReviewForm({ productId }) {
-  const [rating, setRating] = useState(5)
-  const [comment, setComment] = useState('')
-  const { user } = useAuthStore()
-  const addReview = useAddProductReview(productId)
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!comment.trim()) return
-    addReview.mutate(
-      { customerName: user?.name || 'Anonymous', rating, comment },
-      { onSuccess: () => setComment('') }
-    )
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="bg-bg-ivory rounded-2xl p-4 sm:p-5 mb-6">
-      <p className="text-sm font-semibold text-text-main mb-3">Write a review</p>
-      <div className="flex gap-1 mb-3">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button key={n} type="button" onClick={() => setRating(n)} aria-label={`Rate ${n} stars`}>
-            <Star size={22} className={n <= rating ? 'fill-amber text-amber' : 'text-line'} />
-          </button>
-        ))}
-      </div>
-      <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        rows={3}
-        placeholder="Share your experience with this product..."
-        className="w-full rounded-lg border border-line bg-surface-cream px-3 py-2.5 text-sm outline-none focus:border-forest resize-none mb-3"
-        required
-      />
-      <button
-        type="submit"
-        disabled={addReview.isPending}
-        className="rounded-full bg-forest px-5 py-2 text-sm font-medium text-white hover:bg-forest-dark transition-colors disabled:opacity-60"
-      >
-        {addReview.isPending ? 'Submitting...' : 'Submit Review'}
-      </button>
-    </form>
-  )
-}
 
 export default function ProductDetailPage() {
   const { id } = useParams()
@@ -72,7 +28,6 @@ export default function ProductDetailPage() {
   const { data: related } = useRelatedProducts(id, product?.category)
 
   const [quantity, setQuantity] = useState(1)
-  const [showReviewForm, setShowReviewForm] = useState(false)
 
   const { addItem } = useCartStore()
   const { isFavoriteProduct, toggleFavoriteProduct } = useFavoritesStore()
@@ -262,17 +217,10 @@ export default function ProductDetailPage() {
             <h2 className="font-display text-xl sm:text-2xl font-semibold text-text-main">
               Customer Reviews
             </h2>
-            <button
-              onClick={() =>
-                requireAuth(() => setShowReviewForm((v) => !v))()
-              }
-              className="text-sm font-medium text-forest hover:underline"
-            >
-              {showReviewForm ? 'Cancel' : 'Write a review'}
-            </button>
           </div>
-
-          {showReviewForm && <ReviewForm productId={id} />}
+          <p className="text-xs text-text-secondary -mt-4 mb-6">
+            You can leave a review from your completed orders.
+          </p>
 
           {reviewsLoading ? (
             <div className="space-y-4">

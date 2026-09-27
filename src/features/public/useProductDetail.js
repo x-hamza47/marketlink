@@ -1,6 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getProductById, getProductReviews, addProductReview, getRelatedProducts } from '@/services/publicService'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
+import { getProductById, getProductReviews, getRelatedProducts } from '@/services/publicService'
 
 export function useProductDetail(productId) {
   return useQuery({
@@ -23,17 +22,5 @@ export function useRelatedProducts(productId, category) {
     queryKey: ['relatedProducts', productId, category],
     queryFn: () => getRelatedProducts(productId, category),
     enabled: !!category,
-  })
-}
-
-export function useAddProductReview(productId) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (reviewData) => addProductReview(productId, reviewData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['productReviews', productId] })
-      toast.success('Review added!')
-    },
-    onError: () => toast.error('Could not submit review. Try again.'),
   })
 }

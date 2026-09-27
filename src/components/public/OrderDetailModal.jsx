@@ -1,5 +1,7 @@
 import { Package, Calendar, Clock, MapPin, User } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
+import { useState } from 'react'
+import ReviewForm from './ReviewForm'
 
 const STATUS_LABEL = {
   placed: { text: 'Placed', className: 'bg-amber/15 text-amber-dark' },
@@ -10,6 +12,18 @@ const STATUS_LABEL = {
   cancelled: { text: 'Cancelled', className: 'bg-error/10 text-error' },
 }
 
+function ReviewButtonOrForm({ orderId }) {
+  const [showForm, setShowForm] = useState(false)
+  if (showForm) return <ReviewForm orderId={orderId} onDone={() => setShowForm(false)} />
+  return (
+    <button
+      onClick={() => setShowForm(true)}
+      className="w-full rounded-full border border-forest text-forest py-2.5 text-sm font-medium hover:bg-forest/5 transition-colors"
+    >
+      Leave a Review
+    </button>
+  )
+}
 export default function OrderDetailModal({ open, onClose, order }) {
   if (!order) return null
 
@@ -86,6 +100,11 @@ export default function OrderDetailModal({ open, onClose, order }) {
           <span className="text-sm font-semibold text-text-main">Total</span>
           <span className="text-lg font-semibold text-forest">Rs. {order.total}</span>
         </div>
+        {order.status === 'completed' && (
+          <div className="pt-2">
+            <ReviewButtonOrForm orderId={order.id} />
+          </div>
+        )}
       </div>
     </Modal>
   )

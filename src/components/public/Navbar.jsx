@@ -1,7 +1,6 @@
-// src/components/public/Navbar.jsx
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { Sprout, Menu, X, ShoppingCart } from 'lucide-react'
+import { Sprout, Menu, X, ShoppingCart, Heart } from 'lucide-react'
 import clsx from 'clsx'
 import { useCartStore } from '../../stores/cartStore'
 import { useAuthStore } from '../../stores/authStore'
@@ -13,6 +12,7 @@ const NAV_LINKS = [
   { label: 'Products', path: '/products' },
   { label: 'How It Works', path: '/how-it-works' },
   { label: 'About', path: '/about' },
+  { label: 'Favorites', path: '/favorites' },
 ]
 
 export default function Navbar() {
@@ -61,6 +61,9 @@ export default function Navbar() {
 
         {/* Desktop actions */}
         <div className="hidden lg:flex items-center gap-3">
+          <Link to="/favorites" className="flex h-10 w-10 items-center justify-center rounded-full border border-line hover:border-forest transition-colors">
+            <Heart size={17} className="text-text-main" />
+          </Link>
           <Link to="/cart" className="relative flex h-10 w-10 items-center justify-center rounded-full border border-line hover:border-forest transition-colors">
             <ShoppingCart size={17} className="text-text-main" />
             {totalItems > 0 && (

@@ -19,8 +19,8 @@ export default function MarketDetailPage() {
 
   const { data: market, isLoading, isError } = useMarketDetail(id)
 
-const { data: productsData, isLoading: productsLoading, isFetching: productsFetching } =
-  useMarketProducts(id, { page: productsPage, limit: 3 })
+  const { data: productsData, isLoading: productsLoading, isFetching: productsFetching } =
+    useMarketProducts(id, { page: productsPage, limit: 3 })
   const { data: farmers, isLoading: farmersLoading } = useMarketFarmers(id)
   const { location } = useGeolocation()
 
@@ -248,9 +248,10 @@ const { data: productsData, isLoading: productsLoading, isFetching: productsFetc
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {farmers.map((farmer) => (
-                  <div
+                  <Link
+                    to={`/farmers/${farmer.id}`}
                     key={farmer.id}
-                    className="flex items-center gap-3 rounded-2xl border border-line bg-surface-cream p-4"
+                    className="flex items-center gap-3 rounded-2xl border border-line bg-surface-cream p-4 hover:border-forest transition-colors"
                   >
                     <div className="h-11 w-11 shrink-0 rounded-full bg-forest/10 flex items-center justify-center text-sm font-semibold text-forest">
                       {farmer.name.charAt(0)}
@@ -259,7 +260,7 @@ const { data: productsData, isLoading: productsLoading, isFetching: productsFetc
                       <p className="text-sm font-semibold text-text-main">{farmer.name}</p>
                       <p className="text-xs text-text-secondary">{farmer.stall}</p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

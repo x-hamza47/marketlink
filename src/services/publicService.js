@@ -84,48 +84,30 @@ export async function getPublicCategories() {
 
 
 
-const MOCK_PRODUCT_REVIEWS = {
-  'PRD-401': [
-    { id: 'REV-1', customerName: 'Sara Khalid', rating: 5, comment: 'Super fresh, exactly as described.', date: '2026-09-20' },
-    { id: 'REV-2', customerName: 'Fatima Sheikh', rating: 5, comment: 'Crunchy and sweet, kids loved them.', date: '2026-09-14' },
-    { id: 'REV-3', customerName: 'Bilal Ahmed', rating: 4, comment: 'Good quality but a bit pricey.', date: '2026-09-10' },
-  ],
-  'PRD-403': [
-    { id: 'REV-4', customerName: 'Hamza Tariq', rating: 5, comment: 'Best eggs I have had from a local farmer.', date: '2026-09-17' },
-  ],
+function mapReview(r) {
+  return {
+    id: r._id,
+    customerName: r.customerId?.name || 'Anonymous',
+    rating: r.rating,
+    comment: r.comment,
+    date: r.createdAt?.slice(0, 10),
+    farmerResponse: r.farmerResponse || '',
+  }
 }
-
 
 export async function getProductReviews(productId) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.get(`/public/products/${productId}/reviews`)
-  // return data
-
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(MOCK_PRODUCT_REVIEWS[productId] || []), 250)
-  })
+  const { data } = await axiosClient.get(`/reviews/product/${productId}`)
+  return (data.data || []).map(mapReview)
 }
 
-/**
- * Backend endpoint (planned): POST /public/products/:id/reviews
- */
-export async function addProductReview(productId, reviewData) {
-  // --- LIVE API CALL ---
-  // const { data } = await axiosClient.post(`/public/products/${productId}/reviews`, reviewData)
-  // return data
+export async function getFarmerReviews(farmerId) {
+  const { data } = await axiosClient.get(`/reviews/farmer/${farmerId}`)
+  return (data.data || []).map(mapReview)
+}
 
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newReview = {
-        id: `REV-${Math.floor(Math.random() * 9000 + 1000)}`,
-        date: new Date().toISOString().slice(0, 10),
-        ...reviewData,
-      }
-      if (!MOCK_PRODUCT_REVIEWS[productId]) MOCK_PRODUCT_REVIEWS[productId] = []
-      MOCK_PRODUCT_REVIEWS[productId].unshift(newReview)
-      resolve(newReview)
-    }, 300)
-  })
+export async function addReview({ orderId, rating, comment }) {
+  const { data } = await axiosClient.post('/reviews', { orderId, rating, comment })
+  return data.data
 }
 
 export async function getRelatedProducts(productId, category) {
@@ -178,7 +160,9 @@ export async function getMarketFarmers(marketId) {
   const { items: products } = await getMarketProducts(marketId, { page: 1, limit: 200 })
   const seen = new Map()
   products.forEach((p) => {
-    if (!seen.has(p.farmer)) seen.set(p.farmer, { id: p.farmer, name: p.farmer, stall: p.farmer })
+    if (p.farmerId && !seen.has(p.farmerId)) {
+      seen.set(p.farmerId, { id: p.farmerId, name: p.farmer, stall: p.stallName || p.farmer })
+    }
   })
   return Array.from(seen.values())
 }
@@ -235,4 +219,14 @@ export async function placeOrder({ farmerId, marketId, items, pickupDate, pickup
 export async function getAllMarketsPublic() {
   const { data } = await axiosClient.get('/markets')
   return data.data
+}
+
+export async function getFarmerProfile(farmerId) {
+  const { data } = await axiosClient.get(`/farmers/${farmerId}`)
+  return data.data
+}
+
+export async function getFarmerProductsList(farmerId) {
+  const { data } = await axiosClient.get(`/farmers/${farmerId}/products`)
+  return mapProducts(data.data)
 }
