@@ -16,17 +16,18 @@ const STATUS_LABEL = {
 
 function ProductCardSkeleton() {
   return (
-    <div className="snap-start shrink-0 w-[calc(50%-8px)] sm:w-[240px] rounded-2xl border border-line bg-surface-cream overflow-hidden animate-pulse">
-      <div className="h-36 sm:h-40 bg-line" />
-      <div className="p-4 space-y-2">
+    <div className="snap-start shrink-0 w-[82vw] max-w-[280px] sm:w-[240px] rounded-2xl border border-line bg-surface-cream overflow-hidden animate-pulse">
+      <div className="h-44 sm:h-40 bg-line" />
+
+      <div className="p-3.5 sm:p-4 space-y-2">
         <div className="h-4 w-3/4 bg-line rounded" />
         <div className="h-3 w-1/2 bg-line rounded" />
-        <div className="h-4 w-1/3 bg-line rounded" />
+        <div className="h-5 w-1/3 bg-line rounded" />
+        <div className="h-10 w-full bg-line rounded-xl mt-3" />
       </div>
     </div>
   )
 }
-
 function ProductCard({ product }) {
   const status = STATUS_LABEL[product.status]
   const isSoldOut = product.status === 'sold_out'
@@ -36,16 +37,17 @@ function ProductCard({ product }) {
   const requireAuth = useRequireAuth()
   const isFav = isFavorite(product.id)
 
-  const handleToggleFavorite = requireAuth((e) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleToggleFavorite = requireAuth(() => {
     toggleFavorite(product.id)
-    toast.success(isFav ? 'Removed from favorites' : 'Added to favorites')
+
+    toast.success(
+      isFav
+        ? 'Removed from favorites'
+        : 'Added to favorites'
+    )
   })
 
-  const handleAddToCart = requireAuth((e) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleAddToCart = requireAuth(() => {
     addItem({
       id: product.id,
       name: product.name,
@@ -54,74 +56,182 @@ function ProductCard({ product }) {
       farmer: product.farmer,
       image: product.image,
     })
+
     toast.success(`${product.name} added to cart`)
   })
 
   return (
-    <Link
-      to={`/products/${product.id}`}
-      className="group snap-start shrink-0 w-[calc(50%-8px)] sm:w-[240px] rounded-2xl border border-line bg-surface-cream overflow-hidden hover:shadow-card transition-shadow"
+    <article
+      className="
+        group snap-start shrink-0
+        w-[82vw] max-w-[280px]
+        sm:w-[240px]
+        flex flex-col
+        overflow-hidden
+        rounded-2xl
+        border border-line
+        bg-surface-cream
+        transition-all duration-300
+        hover:-translate-y-1
+        hover:shadow-card
+      "
     >
-      <div className="relative h-36 sm:h-40 bg-surface-sand overflow-hidden">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        <span className={`absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-[10px] font-semibold ${status.className}`}>
+      {/* Image */}
+      <div className="relative h-44 sm:h-40 bg-surface-sand overflow-hidden">
+
+        <Link
+          to={`/products/${product.id}`}
+          className="block h-full w-full"
+        >
+          <img
+            src={product.image}
+            alt={product.name}
+            className="
+              h-full w-full object-cover
+              transition-transform duration-500
+              group-hover:scale-105
+            "
+          />
+        </Link>
+
+        {/* Image overlay */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+
+        {/* Status */}
+        <span
+          className={`
+            absolute left-3 top-3
+            rounded-full
+            px-2.5 py-1
+            text-[10px] font-semibold
+            backdrop-blur-sm
+            ${status.className}
+          `}
+        >
           {status.text}
         </span>
 
-        {/* Favorite toggle */}
+        {/* Favorite */}
         <button
           type="button"
           onClick={handleToggleFavorite}
-          className="absolute top-2.5 right-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-surface-cream/90 backdrop-blur-sm shadow-sm hover:bg-surface-cream transition-colors"
-          aria-label="Toggle favorite"
+          className="
+            absolute right-3 top-3 z-10
+            flex h-9 w-9
+            items-center justify-center
+            rounded-full
+            bg-surface-cream/90
+            shadow-sm
+            backdrop-blur-sm
+            transition-all
+            hover:scale-105
+            hover:bg-surface-cream
+            active:scale-95
+          "
+          aria-label={
+            isFav
+              ? 'Remove from favorites'
+              : 'Add to favorites'
+          }
         >
           <Heart
-            size={14}
-            className={clsx(isFav ? 'fill-error text-error' : 'text-text-secondary')}
+            size={16}
+            className={clsx(
+              isFav
+                ? 'fill-error text-error'
+                : 'text-text-secondary'
+            )}
           />
         </button>
       </div>
 
-      <div className="p-3.5 sm:p-4">
-        <p className="text-sm font-semibold text-text-main truncate">{product.name}</p>
-        <p className="text-xs text-text-secondary mt-0.5 truncate">{product.farmer}</p>
+      {/* Content */}
+      <div className="flex flex-1 flex-col p-3.5 sm:p-4">
 
-        <div className="flex items-center justify-between mt-2.5">
-          <p className="text-sm font-semibold text-forest">
-            Rs. {product.price} / {product.unit}
-          </p>
+        {/* Name */}
+        <Link
+          to={`/products/${product.id}`}
+          className="
+            truncate
+            text-sm font-semibold
+            text-text-main
+            hover:text-forest
+            transition-colors
+          "
+        >
+          {product.name}
+        </Link>
 
-          {/* Add to cart */}
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            disabled={isSoldOut}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-forest text-white hover:bg-forest-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            aria-label="Add to cart"
-          >
-            <ShoppingCart size={13} />
-          </button>
+        {/* Farmer */}
+        <p className="mt-1 truncate text-xs text-text-secondary">
+          {product.farmer}
+        </p>
+
+        {/* Price */}
+        <div className="mt-2.5 flex items-baseline gap-1">
+          <span className="text-lg font-bold text-forest">
+            Rs. {product.price}
+          </span>
+
+          <span className="text-[11px] text-text-secondary">
+            / {product.unit}
+          </span>
         </div>
 
-        <div className="flex items-center justify-between mt-2">
+        {/* Rating + Reviews + Stock */}
+        <div className="mt-2.5 flex items-center justify-between">
+
           <span className="flex items-center gap-1 text-xs text-text-secondary">
-            <Star size={12} className="fill-amber text-amber" />
-            {product.rating} ({product.reviews})
+            <Star
+              size={13}
+              className="fill-amber text-amber"
+            />
+
+            <span className="font-medium text-text-main">
+              {product.rating}
+            </span>
+
+            <span>
+              ({product.reviews})
+            </span>
           </span>
+
           {!isSoldOut && (
-            <span className="text-[11px] text-text-secondary">
+            <span className="text-[10px] text-text-secondary">
               {product.stock} {product.unit} left
             </span>
           )}
         </div>
+
+        {/* Add to cart */}
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={isSoldOut}
+          className={clsx(
+            `
+              mt-3
+              flex h-10 w-full
+              items-center justify-center gap-2
+              rounded-xl
+              text-xs font-semibold
+              transition-all
+              active:scale-[0.98]
+            `,
+            isSoldOut
+              ? 'cursor-not-allowed bg-line text-text-secondary'
+              : 'bg-forest text-white hover:bg-forest-dark hover:shadow-sm'
+          )}
+        >
+          <ShoppingCart size={15} />
+
+          {isSoldOut ? 'Sold Out' : 'Add to Cart'}
+        </button>
       </div>
-    </Link>
+    </article>
   )
 }
+
 
 export default function FeaturedProductsSection() {
   const { data: products, isLoading, isError } = useFeaturedProducts()
