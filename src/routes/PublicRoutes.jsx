@@ -13,6 +13,7 @@ import AboutPage from '../pages/public/AboutPage'
 import HowItWorksPage from '../pages/public/HowItWorksPage'
 import FavoritesPage from '../pages/public/FavoritesPage'
 import FarmerDetailPage from '../pages/public/FarmerDetailPage'
+import GuestOnlyRoute from '@/components/routing/GuestOnlyRoute'
 
 function ComingSoon({ title }) {
     return (
@@ -33,14 +34,16 @@ export default function PublicRoutes() {
                 <Route path="products/:id" element={<ProductDetailPage />} />
                 <Route path="account/orders" element={<OrdersPage />} />
                 <Route path="cart" element={<CartPage />} />
-                <Route path="login" element={<LoginPage />} />
-                <Route path="signup" element={<RegisterPage />} />
+                <Route element={<GuestOnlyRoute />}>
+                    <Route path="login" element={<LoginPage />} />
+                    <Route path="signup" element={<RegisterPage />} />
+                </Route>
                 <Route path="favorites" element={<FavoritesPage />} />
                 <Route path="farmers" element={<ComingSoon title="Farmers" />} />
                 <Route path="farmers/:id" element={<FarmerDetailPage />} />
-                <Route path="how-it-works" element={<HowItWorksPage/>} />
+                <Route path="how-it-works" element={<HowItWorksPage />} />
                 <Route path="about" element={<AboutPage />} />
-                <Route path="contact" element={<ComingSoon title="Contact" />} />
+                <Route path="*" element={<ComingSoon title="Page not found" />} />
             </Route>
         </Routes>
     )
