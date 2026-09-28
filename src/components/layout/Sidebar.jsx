@@ -1,24 +1,24 @@
-import { NavLink,useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { useUiStore } from '@/stores/uiStore'
-import { X, LogOut } from 'lucide-react'
-import { useAuthStore } from '@/stores/authStore'
+import { NavLink, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { useUiStore } from "@/stores/uiStore";
+import { X, LogOut } from "lucide-react";
+import { useAuthStore } from "@/stores/authStore";
 
 function SidebarNavLink({ label, icon: Icon, path, isCollapsed, onNavigate }) {
   return (
     <NavLink
       to={path}
-      end={path === '/admin' || path === '/farmer' || path === '/customer'}
+      end={path === "/admin" || path === "/farmer" || path === "/customer"}
       onClick={onNavigate}
       title={isCollapsed ? label : undefined}
       className={({ isActive }) =>
         cn(
-          'flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium transition-colors relative',
-          isCollapsed && 'justify-center',
+          "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium transition-colors relative",
+          isCollapsed && "justify-center",
           isActive
-            ? 'bg-forest/10 text-forest'
-            : 'text-text-secondary hover:bg-bg-ivory hover:text-text-main'
+            ? "bg-forest/10 text-forest"
+            : "text-text-secondary hover:bg-bg-ivory hover:text-text-main",
         )
       }
     >
@@ -32,29 +32,48 @@ function SidebarNavLink({ label, icon: Icon, path, isCollapsed, onNavigate }) {
         </>
       )}
     </NavLink>
-  )
+  );
 }
 
-function SidebarBody({ navSections, badgeLabel, badgeClassName, isCollapsed, onNavigate }) {
-  const navigate = useNavigate()
-  const logout = useAuthStore((s) => s.logout)
+function SidebarBody({
+  navSections,
+  badgeLabel,
+  badgeClassName,
+  isCollapsed,
+  onNavigate,
+}) {
+  const navigate = useNavigate();
+  const logout = useAuthStore((s) => s.logout);
 
   function handleLogout() {
-    logout()
-    onNavigate?.()
-    navigate('/login')
+    logout();
+    onNavigate?.();
+    navigate("/login");
   }
 
   return (
     <div className="flex flex-col h-full">
       {/* Brand */}
-      <div className={cn('h-16 flex items-center border-b border-line/60', isCollapsed ? 'justify-center px-2' : 'px-5')}>
+      <div
+        className={cn(
+          "h-16 flex items-center border-b border-line/60",
+          isCollapsed ? "justify-center px-2" : "px-5",
+        )}
+      >
         {isCollapsed ? (
-          <span className="font-display text-xl font-semibold text-forest">M</span>
+          <img src="/logo-mark.svg" alt="MarketLink" className="h-8 w-8" />
         ) : (
           <>
-            <span className="font-display text-xl font-semibold text-forest">MarketLink</span>
-            <span className={cn('ml-2 text-[10px] font-medium px-1.5 py-0.5 rounded', badgeClassName)}>
+            <img src="/logo-mark.svg" alt="" className="h-8 w-8 mr-2" />
+            <span className="font-display text-xl font-semibold text-forest">
+              Market<span className="text-[#F28C28]">Link</span>
+            </span>
+            <span
+              className={cn(
+                "ml-2 text-[10px] font-medium px-1.5 py-0.5 rounded",
+                badgeClassName,
+              )}
+            >
               {badgeLabel}
             </span>
           </>
@@ -90,31 +109,30 @@ function SidebarBody({ navSections, badgeLabel, badgeClassName, isCollapsed, onN
         <button
           type="button"
           onClick={handleLogout}
-          title={isCollapsed ? 'Logout' : undefined}
+          title={isCollapsed ? "Logout" : undefined}
           className={cn(
-            'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium text-error/80 hover:bg-error/5 hover:text-error transition-colors',
-            isCollapsed && 'justify-center'
+            "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium text-error/80 hover:bg-error/5 hover:text-error transition-colors",
+            isCollapsed && "justify-center",
           )}
         >
           <LogOut className="w-4 h-4 shrink-0" strokeWidth={1.75} />
-          {!isCollapsed && 'Logout'}
+          {!isCollapsed && "Logout"}
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-
 export default function Sidebar({ navSections, badgeLabel, badgeClassName }) {
-  const isCollapsed = useUiStore((state) => state.isSidebarCollapsed)
-  const isMobileNavOpen = useUiStore((state) => state.isMobileNavOpen)
-  const closeMobileNav = useUiStore((state) => state.closeMobileNav)
+  const isCollapsed = useUiStore((state) => state.isSidebarCollapsed);
+  const isMobileNavOpen = useUiStore((state) => state.isMobileNavOpen);
+  const closeMobileNav = useUiStore((state) => state.closeMobileNav);
 
   return (
     <>
       <motion.aside
         animate={{ width: isCollapsed ? 72 : 250 }}
-        transition={{ duration: 0.2, ease: 'easeInOut' }}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
         className="hidden lg:block shrink-0 border-r border-line/60 bg-surface-cream sticky top-0 h-screen overflow-hidden"
       >
         <SidebarBody
@@ -136,10 +154,10 @@ export default function Sidebar({ navSections, badgeLabel, badgeClassName }) {
               onClick={closeMobileNav}
             />
             <motion.aside
-              initial={{ x: '-100%' }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              exit={{ x: "-100%" }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
               className="absolute left-0 top-0 h-full w-70 bg-surface-cream shadow-xl"
             >
               <button
@@ -162,5 +180,5 @@ export default function Sidebar({ navSections, badgeLabel, badgeClassName }) {
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }

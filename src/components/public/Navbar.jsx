@@ -1,41 +1,40 @@
-import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
-import { Sprout, Menu, X, ShoppingCart, Heart } from 'lucide-react'
-import clsx from 'clsx'
-import { useCartStore } from '../../stores/cartStore'
-import { useAuthStore } from '../../stores/authStore'
-import AccountMenu from '../ui/AccountMenu'
+import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { Sprout, Menu, X, ShoppingCart, Heart } from "lucide-react";
+import clsx from "clsx";
+import { useCartStore } from "../../stores/cartStore";
+import { useAuthStore } from "../../stores/authStore";
+import AccountMenu from "../ui/AccountMenu";
 
 const NAV_LINKS = [
-  { label: 'Home', path: '/' },
-  { label: 'Explore Markets', path: '/markets' },
-  { label: 'Products', path: '/products' },
-  { label: 'How It Works', path: '/how-it-works' },
-  { label: 'About', path: '/about' },
-  { label: 'Favorites', path: '/favorites' },
-]
+  { label: "Home", path: "/" },
+  { label: "Explore Markets", path: "/markets" },
+  { label: "Products", path: "/products" },
+  { label: "How It Works", path: "/how-it-works" },
+  { label: "About", path: "/about" },
+  { label: "Favorites", path: "/favorites" },
+];
 
-import NotificationDropdown from '../ui/NotificationDropdown'
+import NotificationDropdown from "../ui/NotificationDropdown";
 
 export default function Navbar() {
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const totalItems = useCartStore((state) => state.getTotalItems())
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const totalItems = useCartStore((state) => state.getTotalItems());
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return (
     <header className="sticky top-0 z-8888 border-b border-line bg-surface-cream/95 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
+        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-forest text-white">
-            <Sprout size={18} />
-          </span>
+          <img src="/logo-mark.svg" alt="" className="h-10 w-10" />
           <span className="flex flex-col leading-tight">
-            <span className="font-display text-lg font-semibold text-text-main">
-              MarketLink
+            <span className="font-display text-lg font-semibold text-forest">
+              Market<span className="text-[#F28C28]">Link</span>
             </span>
-            <span className="text-[11px] text-text-secondary -mt-1">
-              eGreen Basket
+            <span className="text-[11px] text-text-secondary -mt-0.5">
+              Farm Fresh Just a Click Away
             </span>
           </span>
         </Link>
@@ -46,13 +45,13 @@ export default function Navbar() {
             <NavLink
               key={link.path}
               to={link.path}
-              end={link.path === '/'}
+              end={link.path === "/"}
               className={({ isActive }) =>
                 clsx(
-                  'text-sm font-medium transition-colors relative pb-1',
+                  "text-sm font-medium transition-colors relative pb-1",
                   isActive
-                    ? 'text-forest after:absolute after:left-0 after:-bottom-px after:h-0.5 after:w-full after:bg-forest'
-                    : 'text-text-secondary hover:text-forest'
+                    ? "text-forest after:absolute after:left-0 after:-bottom-px after:h-0.5 after:w-full after:bg-forest"
+                    : "text-text-secondary hover:text-forest",
                 )
               }
             >
@@ -63,10 +62,16 @@ export default function Navbar() {
 
         {/* Desktop actions */}
         <div className="hidden lg:flex items-center gap-3">
-          <Link to="/favorites" className="flex h-10 w-10 items-center justify-center rounded-full border border-line hover:border-forest transition-colors">
+          <Link
+            to="/favorites"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-line hover:border-forest transition-colors"
+          >
             <Heart size={17} className="text-text-main" />
           </Link>
-          <Link to="/cart" className="relative flex h-10 w-10 items-center justify-center rounded-full border border-line hover:border-forest transition-colors">
+          <Link
+            to="/cart"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full border border-line hover:border-forest transition-colors"
+          >
             <ShoppingCart size={17} className="text-text-main" />
             {totalItems > 0 && (
               <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-forest text-[9px] font-semibold text-white">
@@ -116,14 +121,14 @@ export default function Navbar() {
               <NavLink
                 key={link.path}
                 to={link.path}
-                end={link.path === '/'}
+                end={link.path === "/"}
                 onClick={() => setIsMobileOpen(false)}
                 className={({ isActive }) =>
                   clsx(
-                    'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                    "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                     isActive
-                      ? 'bg-forest/10 text-forest'
-                      : 'text-text-secondary hover:bg-forest/5 hover:text-forest'
+                      ? "bg-forest/10 text-forest"
+                      : "text-text-secondary hover:bg-forest/5 hover:text-forest",
                   )
                 }
               >
@@ -158,5 +163,5 @@ export default function Navbar() {
         </div>
       )}
     </header>
-  )
+  );
 }
