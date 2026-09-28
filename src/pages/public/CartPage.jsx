@@ -80,6 +80,11 @@ export default function CartPage() {
   )
 
   const handlePlaceOrder = async () => {
+    if (user && user.role !== 'customer') {
+      toast.error('Farmers and Admins cannot place orders. Please use a customer account.')
+      return
+    }
+
     const resolvedMarketId = market?.marketId || market?._id || market?.id
     if (!market || !resolvedMarketId || !selectedDay) {
       toast.error('Please select a pickup market and day')

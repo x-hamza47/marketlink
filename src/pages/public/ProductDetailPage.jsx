@@ -68,9 +68,14 @@ export default function ProductDetailPage() {
     : product.rating ?? '-'
 
   const handleAddToCart = requireAuth(() => {
+    if (user && user.role !== 'customer') {
+      toast.error('Farmers and Admins cannot place orders. Please use a customer account.')
+      return
+    }
+
     const markets = product.farmerMarkets || []
     if (markets.length > 1) {
-      toast.info('This farmer sells at multiple markets - market picker coming next')
+      toast.info('This farmer sells at multiple markets - select your pickup market in cart')
     }
     addItem(
       {

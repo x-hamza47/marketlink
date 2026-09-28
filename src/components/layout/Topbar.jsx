@@ -1,6 +1,7 @@
-import { Search, Bell, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Search, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { useUiStore } from '@/stores/uiStore'
 import AccountMenu from '../ui/AccountMenu'
+import NotificationDropdown from '../ui/NotificationDropdown'
 
 export default function Topbar({ pageTitle, searchPlaceholder = 'Search…' }) {
   const isSidebarCollapsed = useUiStore((state) => state.isSidebarCollapsed)
@@ -46,15 +47,8 @@ export default function Topbar({ pageTitle, searchPlaceholder = 'Search…' }) {
       </div>
 
       <div className="flex items-center gap-3 ml-auto">
-        <button
-          type="button"
-          className="relative p-2 rounded-md hover:bg-bg-ivory text-text-secondary"
-          aria-label="Notifications"
-        >
-          <Bell className="w-4.5 h-4.5" strokeWidth={1.75} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-error" />
-        </button>
-        <AccountMenu/>
+        <NotificationDropdown />
+        <AccountMenu />
       </div>
     </header>
   )

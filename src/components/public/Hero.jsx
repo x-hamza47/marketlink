@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Search,
   MapPin,
@@ -17,11 +17,21 @@ const TRUST_BADGES = [
 ]
 
 export default function Hero() {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
 
   const handleSearch = (e) => {
     e.preventDefault()
-    console.log('Searching for:', search)
+    const query = search.trim()
+    if (query) {
+      navigate(`/products?search=${encodeURIComponent(query)}`)
+    } else {
+      navigate('/products')
+    }
+  }
+
+  const handleNearMe = () => {
+    navigate('/markets')
   }
 
   return (
@@ -67,6 +77,7 @@ export default function Hero() {
 
               <button
                 type="button"
+                onClick={handleNearMe}
                 className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-xs text-text-secondary hover:text-text-main transition-colors shrink-0 border-t sm:border-t-0 sm:border-l border-line/60 justify-center sm:justify-start"
               >
                 <MapPin size={14} className="text-forest" />

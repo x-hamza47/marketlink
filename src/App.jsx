@@ -7,6 +7,8 @@ import ScrollToTop from './hooks/ScrollToTop'
 import { useAuthStore } from '@/stores/authStore'
 import { useFavoritesStore } from '@/stores/favoritesStore'
 
+import AiChatWidget from '@/components/public/AiChatWidget'
+
 function App() {
   const { isAuthenticated } = useAuthStore()
   const { loadFavorites } = useFavoritesStore()
@@ -25,6 +27,7 @@ function App() {
         <Route path="/farmer/*" element={<FarmerRoutes />} />
         <Route path="/*" element={<PublicRoutes />} />
       </Routes>
+      <AiChatWidget />
     </BrowserRouter>
   )
 }

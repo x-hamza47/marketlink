@@ -165,7 +165,26 @@ export default function FarmerRegisterForm() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+      <form
+        onSubmit={(e) => {
+          if (step < STEP_LABELS.length - 1) {
+            e.preventDefault()
+            handleNext()
+          } else {
+            handleSubmit(onSubmit)(e)
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault()
+            if (step < STEP_LABELS.length - 1) {
+              handleNext()
+            }
+          }
+        }}
+        noValidate
+        className="space-y-4"
+      >
         {step === 0 && (
           <>
             <h2 className="font-display text-lg font-semibold text-text-main mb-1">Your account</h2>

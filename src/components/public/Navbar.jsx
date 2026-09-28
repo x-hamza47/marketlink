@@ -15,6 +15,8 @@ const NAV_LINKS = [
   { label: 'Favorites', path: '/favorites' },
 ]
 
+import NotificationDropdown from '../ui/NotificationDropdown'
+
 export default function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const totalItems = useCartStore((state) => state.getTotalItems())
@@ -74,7 +76,10 @@ export default function Navbar() {
           </Link>
 
           {isAuthenticated ? (
-            <AccountMenu />
+            <div className="flex items-center gap-3">
+              <NotificationDropdown />
+              <AccountMenu />
+            </div>
           ) : (
             <>
               <Link

@@ -3,6 +3,7 @@ import { Star, Heart, ShoppingCart } from 'lucide-react'
 import { useCartStore } from '@/stores/cartStore'
 import { useFavoritesStore } from '@/stores/favoritesStore'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
+import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
 import clsx from 'clsx'
 
@@ -17,6 +18,7 @@ export default function ProductCard({ product, className }) {
   const isSoldOut = product.status === 'sold_out'
 
   const { addItem } = useCartStore()
+  const { user } = useAuthStore()
   const { isFavoriteProduct, toggleFavoriteProduct } = useFavoritesStore()
   const requireAuth = useRequireAuth()
   const isFav = isFavoriteProduct(product.id)
@@ -30,6 +32,11 @@ export default function ProductCard({ product, className }) {
   const handleAddToCart = requireAuth((e) => {
     e.preventDefault()
     e.stopPropagation()
+
+    if (user && user.role !== 'customer') {
+      toast.error('Farmers and Admins cannot place orders. Please use a customer account.')
+      return
+    }
 
     const markets = product.farmerMarkets || []
     if (markets.length > 1) {

@@ -5,11 +5,19 @@ export const loginSchema = z.object({
   password: z.string().min(6, 'At least 6 characters'),
 })
 
+export const PAKISTAN_PHONE_REGEX = /^(?:\+92|0092|0)?3[0-9]{2}[-\s]?[0-9]{7}$/
+
 export const registerSchema = z
   .object({
     name: z.string().min(1, 'Full name is required'),
     email: z.string().min(1, 'Email is required').email('Enter a valid email'),
-    phone: z.string().min(1, 'Phone is required'),
+    phone: z
+      .string()
+      .min(1, 'Phone number is required')
+      .regex(
+        PAKISTAN_PHONE_REGEX,
+        'Enter a valid Pakistani phone number (e.g. 0300-1234567 or +923001234567)'
+      ),
     address: z.string().min(1, 'Address is required'),
     role: z.enum(['customer', 'farmer']),
     password: z.string().min(6, 'At least 6 characters'),
@@ -39,7 +47,13 @@ export const farmerRegisterSchema = z
   .object({
     name: z.string().min(1, 'Full name is required'),
     email: z.string().min(1, 'Email is required').email('Enter a valid email'),
-    phone: z.string().min(1, 'Phone is required'),
+    phone: z
+      .string()
+      .min(1, 'Phone number is required')
+      .regex(
+        PAKISTAN_PHONE_REGEX,
+        'Enter a valid Pakistani phone number (e.g. 0300-1234567 or +923001234567)'
+      ),
     address: z.string().min(1, 'Address is required'),
     password: z.string().min(6, 'At least 6 characters'),
     confirmPassword: z.string().min(1, 'Please confirm password'),
