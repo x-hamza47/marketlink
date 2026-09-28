@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
+import farmerDash from '../../assets/images/farmer-dashboard.jpeg'
 
 export default function ForFarmersSection() {
   return (
@@ -23,13 +24,13 @@ export default function ForFarmersSection() {
             >
               Join as Farmer
               <ArrowRight size={16} />
-            </Link>
+            </Link> 
           </div>
 
           <div className="lg:col-span-6 relative">
             <div className="rounded-3xl overflow-hidden aspect-[4/3] max-w-lg mx-auto lg:max-w-none">
               <img
-                src="/src/assets/images/farmer-dashboard.jpeg"
+                src={farmerDash}
                 alt="Farmer with harvest crate"
                 className="h-full w-full object-cover"
               />

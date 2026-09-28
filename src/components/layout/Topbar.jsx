@@ -1,9 +1,9 @@
-import { Search, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import {  Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { useUiStore } from '@/stores/uiStore'
 import AccountMenu from '../ui/AccountMenu'
 import NotificationDropdown from '../ui/NotificationDropdown'
 
-export default function Topbar({ pageTitle, searchPlaceholder = 'Search…' }) {
+export default function Topbar({ pageTitle }) {
   const isSidebarCollapsed = useUiStore((state) => state.isSidebarCollapsed)
   const toggleSidebarCollapsed = useUiStore((state) => state.toggleSidebarCollapsed)
   const openMobileNav = useUiStore((state) => state.openMobileNav)
@@ -36,15 +36,7 @@ export default function Topbar({ pageTitle, searchPlaceholder = 'Search…' }) {
 
       <h1 className="font-display text-lg font-medium text-text-main shrink-0">{pageTitle}</h1>
 
-      {/* Search */}
-      <div className="hidden md:flex items-center gap-2 flex-1 max-w-sm ml-4 px-3 h-9 rounded-md border border-line bg-bg-ivory text-text-secondary">
-        <Search className="w-4 h-4 shrink-0" strokeWidth={1.75} />
-        <input
-          type="text"
-          placeholder={searchPlaceholder}
-          className="bg-transparent outline-none text-sm w-full placeholder:text-text-secondary/70"
-        />
-      </div>
+     
 
       <div className="flex items-center gap-3 ml-auto">
         <NotificationDropdown />
