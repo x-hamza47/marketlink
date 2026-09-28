@@ -13,22 +13,22 @@ export const useCartStore = create(
       addItem: (product, market) => {
         const { farmerId, items } = get()
 
-
-        if (farmerId && farmerId !== product.farmerId) {
+        if (farmerId && String(farmerId) !== String(product.farmerId)) {
           toast.error(`Your cart has items from ${get().farmerName}. Clear cart to order from a different farmer.`)
           return
         }
 
         const quantityToAdd = product.quantity || 1
-        const existing = items.find((i) => i.id === product.id)
+        const existing = items.find((i) => String(i.id) === String(product.id))
+        const chosenMarket = market || product.farmerMarkets?.[0] || get().market
 
         set({
           farmerId: product.farmerId,
           farmerName: product.farmer,
-          market: market || get().market,
+          market: chosenMarket,
           items: existing
             ? items.map((i) =>
-                i.id === product.id ? { ...i, quantity: i.quantity + quantityToAdd } : i
+                String(i.id) === String(product.id) ? { ...i, quantity: i.quantity + quantityToAdd } : i
               )
             : [...items, { ...product, quantity: quantityToAdd }],
         })

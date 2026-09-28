@@ -11,28 +11,47 @@ const TABS = [
 ]
 
 function mapFavoriteProductToCard(p) {
+  const farmerProfile = p.farmerId || null
+  const stockQuantity = p.stockQuantity ?? 0
+  const status = !p.isAvailable || stockQuantity === 0
+    ? 'sold_out'
+    : stockQuantity < 5
+      ? 'limited'
+      : 'available'
+
   return {
     id: p._id,
     name: p.name,
     category: p.category,
     price: p.price,
     unit: p.unit,
-    stock: p.stockQuantity,
+    stock: stockQuantity,
     image: p.imageUrl || '',
-    farmer: p.farmerId?.userId?.name || p.farmerId?.stallName || 'Unknown farmer',
-    farmerId: p.farmerId?._id || null,
-    status: !p.isAvailable || p.stockQuantity === 0 ? 'sold_out' : p.stockQuantity < 5 ? 'limited' : 'available',
+    farmer: farmerProfile?.userId?.name || farmerProfile?.stallName || 'Unknown farmer',
+    farmerId: farmerProfile?._id || null,
+    status,
     rating: null,
     reviews: 0,
-    farmerMarkets: [],
+    farmerMarkets: (farmerProfile?.markets || []).map((m) => ({
+      marketId: m.marketId?._id || m.marketId,
+      marketName: m.marketId?.name || '',
+      marketAddress: m.marketId?.address || '',
+      operatingDays: m.operatingDays,
+      pickupStart: m.pickupStart,
+      pickupEnd: m.pickupEnd,
+      cutoffHours: m.cutoffHours,
+    })),
   }
 }
 
 export default function FavoritesPage() {
   const [tab, setTab] = useState('products')
 
-  const { data: favFarmers, isLoading: farmersLoading } = useFavoriteFarmers()
-  const { data: favProducts, isLoading: productsLoading } = useFavoriteProducts()
+  const { data: rawFavFarmers, isLoading: farmersLoading } = useFavoriteFarmers()
+  const { data: rawFavProducts, isLoading: productsLoading } = useFavoriteProducts()
+
+  const favFarmers = (rawFavFarmers || []).filter(Boolean)
+  const favProducts = (rawFavProducts || []).filter(Boolean)
 
   return (
     <div className="bg-bg-ivory min-h-screen">

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Star, Heart, ShoppingCart, MapPin, Calendar, ChevronRight, Minus, Plus } from 'lucide-react'
+import { Star, Heart, ShoppingCart, MapPin, Calendar, ChevronRight, Minus, Plus, Store } from 'lucide-react'
 import {
   useProductDetail,
   useProductReviews,
@@ -255,6 +255,17 @@ export default function ProductDetailPage() {
                     <span className="text-xs text-text-secondary ml-auto">{review.date}</span>
                   </div>
                   <p className="text-sm text-text-secondary">{review.comment}</p>
+
+                  {/* Farmer reply / response */}
+                  {review.farmerResponse && (
+                    <div className="mt-3 ml-4 pl-3.5 border-l-2 border-forest/40 bg-surface-sand/30 rounded-r-xl p-3">
+                      <p className="text-xs font-semibold text-forest flex items-center gap-1.5 mb-1">
+                        <Store size={13} />
+                        <span>Farmer Response</span>
+                      </p>
+                      <p className="text-sm text-text-main">{review.farmerResponse}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

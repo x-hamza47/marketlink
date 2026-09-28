@@ -1,11 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import {
-  toggleFavoriteFarmer,
+  toggleFavoriteFarmer as apiToggleFarmer,
   getFavoriteFarmers,
-  toggleFavoriteProduct,
+  toggleFavoriteProduct as apiToggleProduct,
   getFavoriteProducts,
 } from '@/services/favoritesService'
+import { queryClient } from '@/lib/queryClient'
 import { toast } from 'sonner'
 
 export const useFavoritesStore = create(
@@ -21,54 +22,62 @@ export const useFavoritesStore = create(
             getFavoriteProducts(),
           ])
           set({
-            farmerIds: farmers.map((f) => f._id),
-            productIds: products.map((p) => p._id),
+            farmerIds: (farmers || []).filter(Boolean).map((f) => String(f._id || f.id)),
+            productIds: (products || []).filter(Boolean).map((p) => String(p._id || p.id)),
           })
         } catch {
-       
+          // ignore error if not logged in
         }
       },
 
+      clearFavorites: () => {
+        set({ farmerIds: [], productIds: [] })
+      },
+
       toggleFavoriteFarmer: async (farmerId) => {
-        const wasFav = get().farmerIds.includes(farmerId)
+        const strId = String(farmerId)
+        const wasFav = get().farmerIds.includes(strId)
         set({
           farmerIds: wasFav
-            ? get().farmerIds.filter((id) => id !== farmerId)
-            : [...get().farmerIds, farmerId],
+            ? get().farmerIds.filter((id) => id !== strId)
+            : [...get().farmerIds, strId],
         })
         try {
-          await toggleFavoriteFarmer(farmerId)
+          await apiToggleFarmer(strId)
+          queryClient.invalidateQueries({ queryKey: ['favoriteFarmers'] })
         } catch {
           set({
             farmerIds: wasFav
-              ? [...get().farmerIds, farmerId]
-              : get().farmerIds.filter((id) => id !== farmerId),
+              ? [...get().farmerIds, strId]
+              : get().farmerIds.filter((id) => id !== strId),
           })
           toast.error('Could not update favorite')
         }
       },
 
       toggleFavoriteProduct: async (productId) => {
-        const wasFav = get().productIds.includes(productId)
+        const strId = String(productId)
+        const wasFav = get().productIds.includes(strId)
         set({
           productIds: wasFav
-            ? get().productIds.filter((id) => id !== productId)
-            : [...get().productIds, productId],
+            ? get().productIds.filter((id) => id !== strId)
+            : [...get().productIds, strId],
         })
         try {
-          await toggleFavoriteProduct(productId)
+          await apiToggleProduct(strId)
+          queryClient.invalidateQueries({ queryKey: ['favoriteProducts'] })
         } catch {
           set({
             productIds: wasFav
-              ? [...get().productIds, productId]
-              : get().productIds.filter((id) => id !== productId),
+              ? [...get().productIds, strId]
+              : get().productIds.filter((id) => id !== strId),
           })
           toast.error('Could not update favorite')
         }
       },
 
-      isFavoriteFarmer: (farmerId) => get().farmerIds.includes(farmerId),
-      isFavoriteProduct: (productId) => get().productIds.includes(productId),
+      isFavoriteFarmer: (farmerId) => farmerId != null && get().farmerIds.includes(String(farmerId)),
+      isFavoriteProduct: (productId) => productId != null && get().productIds.includes(String(productId)),
     }),
     { name: 'marketlink-favorites' }
   )

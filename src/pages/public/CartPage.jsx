@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Minus,
@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { useCartStore } from '@/stores/cartStore'
 import { useAuthStore } from '@/stores/authStore'
-import { placeOrder } from '@/services/publicService'
+import { placeOrder, getFarmerProfile } from '@/services/publicService'
 import { toast } from 'sonner'
 
 const DAY_LABELS = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' }
@@ -21,6 +21,7 @@ const DAY_LABELS = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thur
 // Next upcoming calendar date for a given weekday short-code, within next 7 days
 function nextDateForDay(dayCode) {
   const dayIndex = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(dayCode)
+  if (dayIndex === -1) return null
   const today = new Date()
   const diff = (dayIndex - today.getDay() + 7) % 7
   const date = new Date(today)
@@ -29,14 +30,47 @@ function nextDateForDay(dayCode) {
 }
 
 export default function CartPage() {
-  const { items, market, farmerId, updateQuantity, removeItem, getTotalPrice, clearCart } = useCartStore()
+  const { items, market, farmerId, updateQuantity, removeItem, getTotalPrice, clearCart, setMarket } = useCartStore()
   const { user } = useAuthStore()
 
+  const [availableMarkets, setAvailableMarkets] = useState([])
   const pickupDays = market?.operatingDays || []
   const [selectedDay, setSelectedDay] = useState(pickupDays[0] || '')
   const [notes, setNotes] = useState('')
   const [isPlacing, setIsPlacing] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(null)
+
+  // Fetch farmer's markets if not loaded or to provide switching
+  useEffect(() => {
+    if (farmerId) {
+      getFarmerProfile(farmerId)
+        .then((profile) => {
+          if (profile?.markets?.length > 0) {
+            const mappedList = profile.markets.map((m) => ({
+              marketId: m.marketId?._id || m.marketId,
+              marketName: m.marketId?.name || '',
+              marketAddress: m.marketId?.address || '',
+              operatingDays: m.operatingDays || [],
+              pickupStart: m.pickupStart || '',
+              pickupEnd: m.pickupEnd || '',
+              cutoffHours: m.cutoffHours || 12,
+            }))
+            setAvailableMarkets(mappedList)
+            if (!market || !market.marketId) {
+              setMarket(mappedList[0])
+            }
+          }
+        })
+        .catch(() => {})
+    }
+  }, [farmerId, market, setMarket])
+
+  // Sync selectedDay whenever pickupDays change
+  useEffect(() => {
+    if (pickupDays.length > 0 && (!selectedDay || !pickupDays.includes(selectedDay))) {
+      setSelectedDay(pickupDays[0])
+    }
+  }, [pickupDays, selectedDay])
 
   const subtotal = getTotalPrice()
 
@@ -46,19 +80,23 @@ export default function CartPage() {
   )
 
   const handlePlaceOrder = async () => {
-    if (!market || !selectedDay) {
-      toast.error('Pickup market/day not set')
+    const resolvedMarketId = market?.marketId || market?._id || market?.id
+    if (!market || !resolvedMarketId || !selectedDay) {
+      toast.error('Please select a pickup market and day')
       return
     }
+
+    const pickupStart = market.pickupStart || '09:00'
+    const pickupEnd = market.pickupEnd || '17:00'
 
     setIsPlacing(true)
     try {
       const order = await placeOrder({
         farmerId,
-        marketId: market.marketId,
+        marketId: resolvedMarketId,
         items: items.map((i) => ({ productId: i.id, quantity: i.quantity })),
         pickupDate: selectedDate,
-        pickupWindow: { startTime: market.pickupStart, endTime: market.pickupEnd },
+        pickupWindow: { startTime: pickupStart, endTime: pickupEnd },
         notes,
       })
       setOrderPlaced(order)
@@ -215,15 +253,37 @@ export default function CartPage() {
             </div>
 
             {/* Pickup market info */}
-            {market && (
-              <div className="rounded-2xl border border-line bg-surface-cream p-5">
-                <p className="text-sm font-semibold text-text-main mb-1 flex items-center gap-2">
-                  <MapPin size={15} className="text-forest" />
-                  Pickup Market
-                </p>
+            <div className="rounded-2xl border border-line bg-surface-cream p-5">
+              <p className="text-sm font-semibold text-text-main mb-2 flex items-center gap-2">
+                <MapPin size={15} className="text-forest" />
+                Pickup Market
+              </p>
+              {availableMarkets.length > 1 ? (
+                <div className="space-y-2">
+                  <select
+                    value={market?.marketId || ''}
+                    onChange={(e) => {
+                      const found = availableMarkets.find((m) => m.marketId === e.target.value)
+                      if (found) setMarket(found)
+                    }}
+                    className="w-full rounded-xl border border-line bg-bg-ivory px-3 py-2 text-sm text-text-main outline-none focus:border-forest"
+                  >
+                    {availableMarkets.map((m) => (
+                      <option key={m.marketId} value={m.marketId}>
+                        {m.marketName || m.marketAddress}
+                      </option>
+                    ))}
+                  </select>
+                  {market?.marketAddress && (
+                    <p className="text-xs text-text-secondary">{market.marketAddress}</p>
+                  )}
+                </div>
+              ) : market ? (
                 <p className="text-sm text-text-secondary">{market.marketName || market.marketAddress}</p>
-              </div>
-            )}
+              ) : (
+                <p className="text-sm text-text-secondary">Loading market details…</p>
+              )}
+            </div>
 
             {/* Pickup day */}
             <div className="rounded-2xl border border-line bg-surface-cream p-5">
