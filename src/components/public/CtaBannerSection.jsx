@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
+import CtaBanner from '../../assets/images/cta-banner.jpeg'
 
 export default function CtaBannerSection() {
   return (
     <section className="relative overflow-hidden">
       <div className="relative h-72 sm:h-80">
         <img
-          src="/src/assets/images/cta-banner.jpeg"
+          src={CtaBanner}
           alt="Fresh produce basket"
           className="absolute inset-0 h-full w-full object-cover"
         />

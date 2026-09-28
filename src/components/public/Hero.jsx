@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import heroImage from '../../assets/images/hero-image2.jpeg'
 import {
   Search,
   MapPin,
@@ -121,7 +122,7 @@ export default function Hero() {
             <div className="absolute inset-y-0 right-[-15%] w-[115%] lg:w-[125%]">
 
               <img
-                src="/src/assets/images/hero-image2.jpeg"
+                src={heroImage} 
                 alt="Local farmer at a market stall"
                 className="
         absolute inset-0
