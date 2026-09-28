@@ -39,11 +39,10 @@ export default function PublicRoutes() {
                     <Route path="signup" element={<RegisterPage />} />
                 </Route>
                 <Route path="favorites" element={<FavoritesPage />} />
-                {/* <Route path="farmers" element={<ComingSoon title="Farmers" />} /> */}
                 <Route path="farmers/:id" element={<FarmerDetailPage />} />
                 <Route path="how-it-works" element={<HowItWorksPage />} />
                 <Route path="about" element={<AboutPage />} />
-                {/* <Route path="*" element={<ComingSoon title="Page not found" />} /> */}
+                <Route path="*" element={<ComingSoon title="Page not found" />} />
             </Route>
         </Routes>
     )

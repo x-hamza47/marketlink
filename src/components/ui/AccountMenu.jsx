@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { UserCircle2, LogOut, ChevronDown } from 'lucide-react'
+import { UserCircle2, LogOut, ClipboardList, Store, LayoutDashboard } from 'lucide-react'
 import Avatar from '@/components/ui/Avatar'
 import { useAuthStore } from '@/stores/authStore'
-import { cn } from '@/lib/utils'
+import axiosClient from '@/services/axiosClient'
 
 export default function AccountMenu() {
     const [open, setOpen] = useState(false)
@@ -13,7 +13,6 @@ export default function AccountMenu() {
     const user = useAuthStore((state) => state.user)
     const logout = useAuthStore((state) => state.logout)
 
-    // Close on outside click.
     useEffect(() => {
         function handleClickOutside(e) {
             if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -24,34 +23,46 @@ export default function AccountMenu() {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
-    function goToProfile() {
+    function go(path) {
         setOpen(false)
-        if (user?.role === 'customer') {
-            navigate('/account/orders')
-        } else {
-            navigate(`/${user?.role}/profile`)
-        }
+        navigate(path)
     }
 
-    function handleLogout() {
+    async function handleLogout() {
         setOpen(false)
+        try {
+            await axiosClient.post('/auth/logout')
+        } catch {
+            // ignore — proceed with client-side logout regardless
+        }
         logout()
         navigate('/login')
     }
+
+    const menuItems = {
+        customer: [
+            { label: 'My Orders', icon: ClipboardList, path: '/account/orders' },
+            { label: 'Favorites', icon: Store, path: '/favorites' },
+        ],
+        farmer: [
+            { label: 'Dashboard', icon: LayoutDashboard, path: '/farmer' },
+            { label: 'My Products', icon: Store, path: '/farmer/products' },
+            { label: 'Orders', icon: ClipboardList, path: '/farmer/orders' },
+        ],
+        admin: [
+            { label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
+        ],
+    }[user?.role] || []
 
     return (
         <div className="relative" ref={menuRef}>
             <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
-                className="flex items-center gap-1.5 rounded-md p-1 pr-1.5 hover:bg-bg-ivory transition-colors"
+                className="rounded-full hover:ring-2 hover:ring-forest/20 transition-all"
                 aria-label="Account menu"
             >
                 <Avatar name={user?.name} src={user?.avatarUrl} size="sm" />
-                <ChevronDown
-                    className={cn('w-3.5 h-3.5 text-text-secondary transition-transform', open && 'rotate-180')}
-                    strokeWidth={2}
-                />
             </button>
 
             {open && (
@@ -61,19 +72,33 @@ export default function AccountMenu() {
                         <p className="text-xs text-text-secondary truncate mt-0.5">{user?.email}</p>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={goToProfile}
-                        className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-text-main hover:bg-bg-ivory transition-colors"
-                    >
-                        <UserCircle2 className="w-4 h-4 text-text-secondary" strokeWidth={1.75} />
-                        My Profile
-                    </button>
+                    {menuItems.map((item) => (
+                        <button
+                            key={item.path}
+                            type="button"
+                            onClick={() => go(item.path)}
+                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-text-main hover:bg-bg-ivory transition-colors"
+                        >
+                            <item.icon className="w-4 h-4 text-text-secondary" strokeWidth={1.75} />
+                            {item.label}
+                        </button>
+                    ))}
+
+                    {user?.role !== 'admin' && (
+                        <button
+                            type="button"
+                            onClick={() => go(user?.role === 'customer' ? '/account/profile' : `/${user?.role}/profile`)}
+                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-text-main hover:bg-bg-ivory transition-colors"
+                        >
+                            <UserCircle2 className="w-4 h-4 text-text-secondary" strokeWidth={1.75} />
+                            My Profile
+                        </button>
+                    )}
 
                     <button
                         type="button"
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-error hover:bg-error/5 transition-colors"
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-error hover:bg-error/5 border-t border-line/60 mt-1 pt-2"
                     >
                         <LogOut className="w-4 h-4" strokeWidth={1.75} />
                         Logout

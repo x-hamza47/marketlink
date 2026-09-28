@@ -8,12 +8,12 @@ export const useCartStore = create(
       items: [],
       farmerId: null,
       farmerName: '',
-      market: null, // { marketId, marketName, operatingDays, pickupStart, pickupEnd, cutoffHours }
+      market: null, 
 
       addItem: (product, market) => {
         const { farmerId, items } = get()
 
-        // Block adding from a different farmer
+
         if (farmerId && farmerId !== product.farmerId) {
           toast.error(`Your cart has items from ${get().farmerName}. Clear cart to order from a different farmer.`)
           return
@@ -38,7 +38,7 @@ export const useCartStore = create(
         const remaining = get().items.filter((i) => i.id !== productId)
         set({
           items: remaining,
-          // Reset farmer/market lock once cart is empty
+
           farmerId: remaining.length ? get().farmerId : null,
           farmerName: remaining.length ? get().farmerName : '',
           market: remaining.length ? get().market : null,

@@ -192,6 +192,8 @@ function mapOrder(o) {
     status: mapOrderStatus(o.status),
     cutoffTime: o.cutoffTime,
     notes: o.notes || '',
+    hasReview: !!o.hasReview,
+
   }
 }
 

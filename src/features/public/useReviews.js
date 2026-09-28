@@ -28,6 +28,13 @@ export function useAddReview() {
       queryClient.invalidateQueries({ queryKey: ['farmerReviews'] })
       toast.success('Review posted')
     },
-    onError: (err) => toast.error(err?.response?.data?.message || 'Could not post review'),
+    onError: (err) => {
+      queryClient.invalidateQueries({ queryKey: ['customerOrders'] })
+      toast.error(
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        'Could not post review'
+      )
+    },
   })
 }

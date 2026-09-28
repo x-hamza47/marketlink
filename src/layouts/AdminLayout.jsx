@@ -48,7 +48,6 @@ const NAV_SECTIONS = [
     label: 'System',
     items: [
       { label: 'My Profile', icon: UserCircle2, path: '/admin/profile' },
-      // { label: 'Help', icon: HelpCircle, path: '/admin/help' },
     ],
   },
 ]

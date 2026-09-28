@@ -55,7 +55,8 @@ export default function OrdersPage() {
 
   const [activeFilter, setActiveFilter] = useState('all')
   const [orderToCancel, setOrderToCancel] = useState(null)
-  const [orderToView, setOrderToView] = useState(null)
+  const [orderToViewId, setOrderToViewId] = useState(null)
+  const orderToView = orders?.find((o) => o.id === orderToViewId) || null
 
   const filteredOrders = orders?.filter((order) => {
     if (activeFilter === 'all') return true
@@ -193,7 +194,7 @@ export default function OrdersPage() {
                         </button>
                       )}
                       <button
-                        onClick={() => setOrderToView(order)}
+                        onClick={() => setOrderToViewId(order.id)}
                         className="flex items-center gap-1 text-[11px] sm:text-xs font-medium text-forest hover:underline whitespace-nowrap"
                       >
                         Details
@@ -210,7 +211,7 @@ export default function OrdersPage() {
 
       <OrderDetailModal
         open={!!orderToView}
-        onClose={() => setOrderToView(null)}
+        onClose={() => setOrderToViewId(null)}
         order={orderToView}
       />
 

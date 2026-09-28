@@ -12,9 +12,22 @@ const STATUS_LABEL = {
   cancelled: { text: 'Cancelled', className: 'bg-error/10 text-error' },
 }
 
-function ReviewButtonOrForm({ orderId }) {
+function ReviewButtonOrForm({ orderId, hasReview }) {
+  const [submitted, setSubmitted] = useState(false)
   const [showForm, setShowForm] = useState(false)
-  if (showForm) return <ReviewForm orderId={orderId} onDone={() => setShowForm(false)} />
+
+  if (hasReview || submitted) {
+    return (
+      <p className="w-full text-center text-sm text-text-secondary py-2.5">
+        You already reviewed this order.
+      </p>
+    )
+  }
+
+  if (showForm) {
+    return <ReviewForm orderId={orderId} onDone={() => setSubmitted(true)} />
+  }
+
   return (
     <button
       onClick={() => setShowForm(true)}
@@ -24,6 +37,7 @@ function ReviewButtonOrForm({ orderId }) {
     </button>
   )
 }
+
 export default function OrderDetailModal({ open, onClose, order }) {
   if (!order) return null
 
@@ -102,7 +116,7 @@ export default function OrderDetailModal({ open, onClose, order }) {
         </div>
         {order.status === 'completed' && (
           <div className="pt-2">
-            <ReviewButtonOrForm orderId={order.id} />
+            <ReviewButtonOrForm orderId={order.id} hasReview={order.hasReview} />
           </div>
         )}
       </div>

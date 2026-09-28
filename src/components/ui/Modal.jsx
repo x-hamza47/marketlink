@@ -4,12 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-/**
- * Generic modal shell. Usage:
- * <Modal open={isOpen} onClose={() => setIsOpen(false)} title="Farmer Details">
- *   ...content...
- * </Modal>
- */
+
 export default function Modal({ open, onClose, title, children, size = 'md' }) {
   // Close on Escape key
   useEffect(() => {

@@ -2,23 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { MoreHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-/**
- * Dropdown action menu for table rows.
- *
- * Usage:
- * <ActionMenu
- *   actions={[
- *     { label: 'View', icon: Eye, onClick: () => {...} },
- *     { label: 'Edit', icon: Pencil, onClick: () => {...} },
- *     { label: 'Delete', icon: Trash2, onClick: () => {...}, danger: true },
- *   ]}
- * />
- */
 export default function ActionMenu({ actions = [] }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
-  // Close on outside click
+
   useEffect(() => {
     function handleClickOutside(e) {
       if (ref.current && !ref.current.contains(e.target)) {

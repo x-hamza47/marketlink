@@ -1,16 +1,6 @@
 import Modal from './Modal'
 import Button from './Button'
 
-/**
- * Usage:
- * <ConfirmDialog
- *   open={confirmOpen}
- *   onClose={() => setConfirmOpen(false)}
- *   onConfirm={() => { doTheDelete(); setConfirmOpen(false) }}
- *   title="Remove Farmer"
- *   description={`Remove "${farmer.name}"? This cannot be undone.`}
- * />
- */
 export default function ConfirmDialog({
   open,
   onClose,

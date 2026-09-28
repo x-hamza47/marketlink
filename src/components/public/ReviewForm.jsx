@@ -7,12 +7,17 @@ export default function ReviewForm({ orderId, onDone }) {
   const [comment, setComment] = useState('')
   const addReview = useAddReview()
 
-  const handleSubmit = (e) => {
+   const handleSubmit = (e) => {
     e.preventDefault()
     if (!comment.trim()) return
     addReview.mutate(
       { orderId, rating, comment },
-      { onSuccess: () => { setComment(''); onDone?.() } }
+      {
+        onSuccess: () => { setComment(''); onDone?.() },
+        onError: (err) => {
+          if (err?.response?.data?.error === 'Already reviewed') onDone?.()
+        },
+      }
     )
   }
 

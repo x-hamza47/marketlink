@@ -1,9 +1,5 @@
 import { cn } from '@/lib/utils'
 
-/**
- * Segmented range toggle. Usage:
- * <RangeToggle options={['7D','30D','3M','12M']} value={range} onChange={setRange} />
- */
 export default function RangeToggle({ options, value, onChange, className }) {
   return (
     <div className={cn('inline-flex items-center bg-bg-ivory border border-line rounded-md p-0.5', className)}>

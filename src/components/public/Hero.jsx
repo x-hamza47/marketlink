@@ -200,8 +200,8 @@ export default function Hero() {
 
             {/* PRODUCT CARD */}
             <div className="absolute top-[45%] right-0 lg:-right-4 z-10 flex items-center gap-3 rounded-2xl bg-surface-cream/95 backdrop-blur-md p-3 shadow-xl border border-line w-48 sm:w-56">
-              <div className="h-11 w-11 shrink-0 rounded-xl bg-error/10 flex items-center justify-center text-xl">
-                🍅
+              <div className="h-11 w-11 shrink-0 rounded-xl bg-error/10 flex items-center justify-center text-error">
+                <ShoppingBasket className="w-5 h-5" strokeWidth={1.75} />
               </div>
 
               <div className="leading-tight">

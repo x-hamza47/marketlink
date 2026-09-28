@@ -1,8 +1,9 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink,useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useUiStore } from '@/stores/uiStore'
 import { X, LogOut } from 'lucide-react'
+import { useAuthStore } from '@/stores/authStore'
 
 function SidebarNavLink({ label, icon: Icon, path, isCollapsed, onNavigate }) {
   return (
@@ -35,6 +36,15 @@ function SidebarNavLink({ label, icon: Icon, path, isCollapsed, onNavigate }) {
 }
 
 function SidebarBody({ navSections, badgeLabel, badgeClassName, isCollapsed, onNavigate }) {
+  const navigate = useNavigate()
+  const logout = useAuthStore((s) => s.logout)
+
+  function handleLogout() {
+    logout()
+    onNavigate?.()
+    navigate('/login')
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* Brand */}
@@ -79,6 +89,7 @@ function SidebarBody({ navSections, badgeLabel, badgeClassName, isCollapsed, onN
       <div className="px-3 py-4 border-t border-line/60">
         <button
           type="button"
+          onClick={handleLogout}
           title={isCollapsed ? 'Logout' : undefined}
           className={cn(
             'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium text-error/80 hover:bg-error/5 hover:text-error transition-colors',
