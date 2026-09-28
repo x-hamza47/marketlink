@@ -1,8 +1,9 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { useState } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { useGeolocation } from '@/hooks/useGeolocation'
 
-// Custom branded marker — replaces Leaflet's default icon.
 const marketIcon = new L.DivIcon({
   className: 'custom-market-marker',
   html: `<div style="
@@ -25,6 +26,29 @@ const activeMarketIcon = new L.DivIcon({
   iconAnchor: [11, 11],
 })
 
+const userLocationIcon = new L.DivIcon({
+  className: 'custom-user-marker',
+  html: `<div style="
+    width: 14px; height: 14px; border-radius: 50%;
+    background: #3B82F6; border: 3px solid #FFFEFA;
+    box-shadow: 0 0 0 4px rgba(59,130,246,0.25);
+  "></div>`,
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+})
+
+const droppedPinIcon = new L.DivIcon({
+  className: 'custom-dropped-pin',
+  html: `<div style="
+    width: 24px; height: 24px; border-radius: 50% 50% 50% 0;
+    background: #B33A3A; border: 2px solid #FFFEFA;
+    transform: rotate(-45deg);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  "></div>`,
+  iconSize: [24, 24],
+  iconAnchor: [12, 24],
+})
+
 // Recenters the map when the selected market changes.
 function MapRecenter({ center }) {
   const map = useMap()
@@ -32,19 +56,54 @@ function MapRecenter({ center }) {
   return null
 }
 
+
+function DropPinHandler({ onDrop }) {
+  useMapEvents({
+    click: (e) => onDrop([e.latlng.lat, e.latlng.lng]),
+  })
+  return null
+}
+
 export default function MarketMap({ markets, selectedMarketId, onSelectMarket }) {
   const defaultCenter = [24.86, 67.05] // Karachi
+  const { location, status } = useGeolocation()
+  const [droppedPin, setDroppedPin] = useState(null)
 
   const selected = markets.find((m) => m.id === selectedMarketId)
+  const userCenter = status === 'granted' ? location : null
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden border border-line">
-      <MapContainer center={defaultCenter} zoom={11} scrollWheelZoom style={{ height: '100%', width: '100%' }}>
+      <MapContainer
+        center={userCenter || defaultCenter}
+        zoom={userCenter ? 13 : 11}
+        scrollWheelZoom
+        style={{ height: '100%', width: '100%' }}
+      >
         <TileLayer
           attribution='&copy; OpenStreetMap contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <DropPinHandler onDrop={setDroppedPin} />
+
         {selected && <MapRecenter center={[selected.lat, selected.lng]} />}
+
+        {userCenter && (
+          <Marker position={userCenter} icon={userLocationIcon}>
+            <Popup>Your location</Popup>
+          </Marker>
+        )}
+
+        {droppedPin && (
+          <Marker position={droppedPin} icon={droppedPinIcon}>
+            <Popup>
+              Dropped pin
+              <br />
+              {droppedPin[0].toFixed(5)}, {droppedPin[1].toFixed(5)}
+            </Popup>
+          </Marker>
+        )}
+
         {markets.map((market) => (
           <Marker
             key={market.id}

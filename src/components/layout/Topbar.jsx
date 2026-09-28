@@ -9,7 +9,7 @@ export default function Topbar({ pageTitle, searchPlaceholder = 'Search…' }) {
 
   return (
     <header className="h-16 shrink-0 border-b border-line/60 bg-surface-cream flex items-center gap-4 px-4 lg:px-6 sticky top-0 z-30">
-      {/* Mobile: opens drawer */}
+      {/* Mobile */}
       <button
         type="button"
         onClick={openMobileNav}
@@ -19,7 +19,7 @@ export default function Topbar({ pageTitle, searchPlaceholder = 'Search…' }) {
         <Menu className="w-5 h-5" />
       </button>
 
-      {/* Desktop: collapse/expand toggle */}
+      {/* Desktop */}
       <button
         type="button"
         onClick={toggleSidebarCollapsed}

@@ -12,7 +12,7 @@ import {
   Star,
 } from 'lucide-react'
 
-// Config-driven so the JSX below stays a clean .map(), not 8 copy-pasted <Stat> blocks.
+
 const KPI_CONFIG = [
   { key: 'totalFarmers', label: 'Farmers', icon: Users },
   { key: 'totalCustomers', label: 'Customers', icon: UserCircle },

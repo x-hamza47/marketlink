@@ -39,7 +39,6 @@ export default function AddAnnouncementModal({ open, onClose, announcement = nul
     },
   })
 
-  // Populate the form when opening in edit mode, or reset when opening to add.
   useEffect(() => {
     if (!open) return
 
@@ -139,7 +138,6 @@ export default function AddAnnouncementModal({ open, onClose, announcement = nul
           {errors.audience && <p className="text-xs text-error mt-1">{errors.audience.message}</p>}
         </div>
 
-        {/* Status + Expiry, side by side */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-text-main mb-1.5">

@@ -24,14 +24,13 @@ const baseCategoryFields = {
   }),
 }
 
-// Used when creating a new category — image is mandatory.
+
 export const addCategorySchema = z.object({
   ...baseCategoryFields,
   image: imageFileSchema,
 })
 
-// Used when editing — image is optional (only validated if a new file is provided;
-// leaving it untouched keeps the existing Cloudinary image on the backend).
+
 export const editCategorySchema = z.object({
   ...baseCategoryFields,
   image: z

@@ -19,7 +19,7 @@ const pinIcon = new L.DivIcon({
   iconAnchor: [13, 26],
 })
 
-// Listens for map clicks and drag-end on the marker, reports new coordinates up.
+
 function ClickAndDragHandler({ onLocationChange }) {
   useMapEvents({
     click: (e) => {
@@ -29,8 +29,7 @@ function ClickAndDragHandler({ onLocationChange }) {
   return null
 }
 
-// Recenters/zooms the map whenever the pin's coordinates change externally
-// (e.g. from a search result selection), not just on initial mount.
+
 function MapRecenter({ lat, lng }) {
   const map = useMap()
   useEffect(() => {
@@ -41,17 +40,6 @@ function MapRecenter({ lat, lng }) {
   return null
 }
 
-/**
- * LocationPicker — address search (geocoding) + interactive map with a
- * draggable pin. Both interactions converge on the same lat/lng state,
- * which the parent form reads via onChange.
- *
- * Usage:
- * <LocationPicker
- *   value={{ lat, lng, address }}
- *   onChange={({ lat, lng, address }) => ...}
- * />
- */
 export default function LocationPicker({ value, onChange }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
@@ -60,7 +48,7 @@ export default function LocationPicker({ value, onChange }) {
 
   const debouncedQuery = useDebounce(query, 500)
 
-  // Fires the geocoding search whenever the debounced query changes.
+
   useEffect(() => {
     if (!debouncedQuery || debouncedQuery.trim().length < 3) {
       setResults([])

@@ -17,6 +17,7 @@ import { Store, CheckCircle2, Users, Package, Eye, Ban, Trash2, Plus } from 'luc
 import SearchInput from '@/components/ui/SearchInput'
 import Button from '@/components/ui/Button'
 import AddMarketModal from '@/components/admin/AddMarketModal'
+import { useDebounce } from '@/hooks/useDebounce'
 
 const STAT_CONFIG = [
     { key: 'total', label: 'Total Markets', icon: Store },
@@ -44,17 +45,18 @@ export default function MarketsPage() {
     const [viewingMarket, setViewingMarket] = useState(null)
     const [deletingMarket, setDeletingMarket] = useState(null)
     const [search, setSearch] = useState('')
+    const debouncedSearch = useDebounce(search, 300)
     const [visibleCount, setVisibleCount] = useState(BATCH_SIZE)
     const [addMarketOpen, setAddMarketOpen] = useState(false)
 
     const filteredMarkets = useMemo(() => {
         if (!markets) return []
-        const q = search.trim().toLowerCase()
+        const q = debouncedSearch.trim().toLowerCase()
         if (!q) return markets
         return markets.filter(
             (m) => m.name.toLowerCase().includes(q) || m.address.toLowerCase().includes(q)
         )
-    }, [markets, search])
+    }, [markets, debouncedSearch])
 
     const visibleMarkets = filteredMarkets.slice(0, visibleCount)
     const hasMore = visibleCount < filteredMarkets.length

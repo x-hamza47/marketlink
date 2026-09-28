@@ -10,6 +10,7 @@ export function useUpdateOrderStatus() {
     mutationFn: ({ orderId, status }) => updateOrderStatus(orderId, status),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ORDERS] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ANALYTICS] })
       toast.success(`Order #${variables.orderId} updated`)
     },
     onError: () => {
@@ -25,6 +26,7 @@ export function useDeleteOrder() {
     mutationFn: (orderId) => deleteOrder(orderId),
     onSuccess: (_data, orderId) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ORDERS] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ANALYTICS] })
       toast.success(`Order #${orderId} deleted`)
     },
     onError: () => {

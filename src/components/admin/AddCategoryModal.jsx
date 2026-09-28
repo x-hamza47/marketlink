@@ -36,7 +36,7 @@ export default function AddCategoryModal({ open, onClose, category = null }) {
 
   const imageValue = watch('image')
 
-  // Populate the form when opening in edit mode, or reset when opening to add.
+ 
   useEffect(() => {
     if (!open) return
 
@@ -49,7 +49,7 @@ export default function AddCategoryModal({ open, onClose, category = null }) {
     }
   }, [open, isEditMode, category, reset])
 
-  // Generate/revoke an object URL preview whenever a new file is picked.
+
   useEffect(() => {
     if (imageValue instanceof File) {
       const url = URL.createObjectURL(imageValue)

@@ -57,6 +57,7 @@ export default function OrderAnalyticsChart() {
             <XAxis
               dataKey="label"
               tick={{ fontSize: 11, fill: '#6B746D' }}
+              tickFormatter={(v) => v.slice(5)} 
               axisLine={{ stroke: '#DDE3DC' }}
               tickLine={false}
             />

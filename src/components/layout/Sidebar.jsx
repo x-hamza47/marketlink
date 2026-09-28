@@ -76,7 +76,6 @@ function SidebarBody({ navSections, badgeLabel, badgeClassName, isCollapsed, onN
         ))}
       </nav>
 
-      {/* Footer: logout */}
       <div className="px-3 py-4 border-t border-line/60">
         <button
           type="button"

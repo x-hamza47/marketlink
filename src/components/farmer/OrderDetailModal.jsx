@@ -39,7 +39,6 @@ export default function OrderDetailModal({ order, open, onClose }) {
           </div>
         </div>
 
-        {/* Items breakdown */}
         <div className="pt-3 border-t border-line/60">
           <p className="text-xs text-text-secondary mb-2">Items</p>
           <div className="space-y-2">
