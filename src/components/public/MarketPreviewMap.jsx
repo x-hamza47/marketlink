@@ -33,7 +33,9 @@ const youAreHereIcon = new L.DivIcon({
 })
 
 export default function MarketPreviewMap({ markets = [], userLocation, nearestMarketId }) {
-  const center = userLocation || (markets[0] ? [markets[0].lat, markets[0].lng] : [24.86, 67.05])
+  const firstLat = markets[0]?.lat ?? markets[0]?.location?.coordinates?.[1]
+  const firstLng = markets[0]?.lng ?? markets[0]?.location?.coordinates?.[0]
+  const center = userLocation || (firstLat != null && firstLng != null ? [firstLat, firstLng] : [24.86, 67.05])
 
   return (
     <div className="h-full w-full">
@@ -51,13 +53,20 @@ export default function MarketPreviewMap({ markets = [], userLocation, nearestMa
 
         {userLocation && <Marker position={userLocation} icon={youAreHereIcon} />}
 
-        {markets.map((market) => (
-          <Marker
-            key={market._id}
-            position={[market.lat, market.lng]}
-            icon={market._id === nearestMarketId ? nearestMarketIcon : marketIcon}
-          />
-        ))}
+        {markets.map((market) => {
+          const marketId = market._id || market.id
+          const lat = market.lat ?? market.location?.coordinates?.[1]
+          const lng = market.lng ?? market.location?.coordinates?.[0]
+          if (lat == null || lng == null) return null
+
+          return (
+            <Marker
+              key={marketId}
+              position={[lat, lng]}
+              icon={marketId === nearestMarketId ? nearestMarketIcon : marketIcon}
+            />
+          )
+        })}
       </MapContainer>
     </div>
   )

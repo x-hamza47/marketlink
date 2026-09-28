@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sprout, Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react'
@@ -10,9 +10,12 @@ import { loginRequest } from '@/services/authService'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const from = location.state?.from?.pathname || '/'
 
   const {
     register,
@@ -22,17 +25,15 @@ export default function LoginPage() {
 
   const onSubmit = async (data) => {
     setIsSubmitting(true)
-    // --- LIVE API CALL (once backend exists) ---
 
     try {
       const { user, token } = await loginRequest(data);
       login(user, token);
       toast.success('Welcome back!')
-      navigate('/')
+      navigate(from, { replace: true })
     } catch (err) {
       const message = err.response?.data?.message || 'Invalid email or password.'
       toast.error(message)
-
     }
     setIsSubmitting(false)
   }

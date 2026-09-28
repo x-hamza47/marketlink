@@ -49,10 +49,16 @@ const droppedPinIcon = new L.DivIcon({
   iconAnchor: [12, 24],
 })
 
+import { useEffect } from 'react'
+
 // Recenters the map when the selected market changes.
 function MapRecenter({ center }) {
   const map = useMap()
-  if (center) map.setView(center, 14, { animate: true })
+  useEffect(() => {
+    if (center && center[0] != null && center[1] != null && !isNaN(center[0]) && !isNaN(center[1])) {
+      map.flyTo(center, 14, { animate: true, duration: 0.8 })
+    }
+  }, [center, map])
   return null
 }
 
@@ -64,12 +70,18 @@ function DropPinHandler({ onDrop }) {
   return null
 }
 
-export default function MarketMap({ markets, selectedMarketId, onSelectMarket }) {
+export default function MarketMap({ markets = [], selectedMarketId, onSelectMarket }) {
   const defaultCenter = [24.86, 67.05] // Karachi
   const { location, status } = useGeolocation()
   const [droppedPin, setDroppedPin] = useState(null)
 
-  const selected = markets.find((m) => m.id === selectedMarketId)
+  const selected = markets.find((m) => (m._id || m.id) === selectedMarketId)
+  const selectedCoords = selected
+    ? [
+        selected.lat ?? selected.location?.coordinates?.[1],
+        selected.lng ?? selected.location?.coordinates?.[0],
+      ]
+    : null
   const userCenter = status === 'granted' ? location : null
 
   return (
@@ -86,7 +98,9 @@ export default function MarketMap({ markets, selectedMarketId, onSelectMarket })
         />
         <DropPinHandler onDrop={setDroppedPin} />
 
-        {selected && <MapRecenter center={[selected.lat, selected.lng]} />}
+        {selectedCoords && selectedCoords[0] != null && selectedCoords[1] != null && (
+          <MapRecenter center={selectedCoords} />
+        )}
 
         {userCenter && (
           <Marker position={userCenter} icon={userLocationIcon}>

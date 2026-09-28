@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Heart, Store } from 'lucide-react'
+import { Heart, Store, LogIn, UserPlus } from 'lucide-react'
 import { useFavoriteFarmers, useFavoriteProducts } from '@/features/public/useFavorites'
+import { useAuthStore } from '@/stores/authStore'
 import ProductCard from '@/components/public/ProductCard'
 import clsx from 'clsx'
 
@@ -46,12 +47,50 @@ function mapFavoriteProductToCard(p) {
 
 export default function FavoritesPage() {
   const [tab, setTab] = useState('products')
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
 
   const { data: rawFavFarmers, isLoading: farmersLoading } = useFavoriteFarmers()
   const { data: rawFavProducts, isLoading: productsLoading } = useFavoriteProducts()
 
   const favFarmers = (rawFavFarmers || []).filter(Boolean)
   const favProducts = (rawFavProducts || []).filter(Boolean)
+
+  if (!isAuthenticated) {
+    return (
+      <div className="bg-bg-ivory min-h-screen">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 py-12 sm:py-20">
+          <div className="text-center bg-surface-cream rounded-3xl border border-line p-8 sm:p-12 shadow-soft max-w-lg mx-auto">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-forest/10 text-forest mx-auto mb-5">
+              <Heart size={30} className="fill-forest/20 text-forest" />
+            </span>
+            <h1 className="font-display text-2xl sm:text-3xl font-semibold text-text-main mb-2">
+              Sign in to view favorites
+            </h1>
+            <p className="text-text-secondary text-sm leading-relaxed mb-8">
+              Keep track of your favorite local farmers, fresh produce, and markets all in one place.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                to="/login"
+                state={{ from: { pathname: '/favorites' } }}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-forest px-6 py-2.5 text-sm font-medium text-white hover:bg-forest-dark transition-colors shadow-sm"
+              >
+                <LogIn size={16} />
+                Sign In
+              </Link>
+              <Link
+                to="/signup"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface-cream px-6 py-2.5 text-sm font-medium text-text-main hover:border-forest hover:text-forest transition-colors"
+              >
+                <UserPlus size={16} />
+                Create Account
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-bg-ivory min-h-screen">

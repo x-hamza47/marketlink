@@ -16,6 +16,11 @@ export const useFavoritesStore = create(
       productIds: [],
 
       loadFavorites: async () => {
+        const token = localStorage.getItem('marketlink_token')
+        if (!token) {
+          set({ farmerIds: [], productIds: [] })
+          return
+        }
         try {
           const [farmers, products] = await Promise.all([
             getFavoriteFarmers(),
@@ -35,6 +40,11 @@ export const useFavoritesStore = create(
       },
 
       toggleFavoriteFarmer: async (farmerId) => {
+        const token = localStorage.getItem('marketlink_token')
+        if (!token) {
+          toast.error('Please log in to save favorites')
+          return
+        }
         const strId = String(farmerId)
         const wasFav = get().farmerIds.includes(strId)
         set({
@@ -56,6 +66,11 @@ export const useFavoritesStore = create(
       },
 
       toggleFavoriteProduct: async (productId) => {
+        const token = localStorage.getItem('marketlink_token')
+        if (!token) {
+          toast.error('Please log in to save favorites')
+          return
+        }
         const strId = String(productId)
         const wasFav = get().productIds.includes(strId)
         set({

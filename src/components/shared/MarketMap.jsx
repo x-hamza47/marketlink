@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -43,13 +44,23 @@ const userLocationIcon = new L.DivIcon({
 
 function MapRecenter({ center }) {
   const map = useMap()
-  if (center) map.setView(center, 14, { animate: true })
+  useEffect(() => {
+    if (center && center[0] != null && center[1] != null && !isNaN(center[0]) && !isNaN(center[1])) {
+      map.flyTo(center, 14, { animate: true, duration: 0.8 })
+    }
+  }, [center, map])
   return null
 }
 
-export default function MarketMap({ markets, selectedMarketId, onSelectMarket, renderPopup, userLocation }) {
+export default function MarketMap({ markets = [], selectedMarketId, onSelectMarket, renderPopup, userLocation }) {
   const defaultCenter = userLocation || [24.86, 67.05]
-  const selected = markets.find((m) => m.id === selectedMarketId)
+  const selected = markets.find((m) => (m._id || m.id) === selectedMarketId)
+  const selectedCoords = selected
+    ? [
+        selected.lat ?? selected.location?.coordinates?.[1],
+        selected.lng ?? selected.location?.coordinates?.[0],
+      ]
+    : null
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden border border-line">
@@ -58,7 +69,9 @@ export default function MarketMap({ markets, selectedMarketId, onSelectMarket, r
           attribution='&copy; OpenStreetMap contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {selected && <MapRecenter center={[selected.lat, selected.lng]} />}
+        {selectedCoords && selectedCoords[0] != null && selectedCoords[1] != null && (
+          <MapRecenter center={selectedCoords} />
+        )}
 
         {userLocation && (
           <Marker position={userLocation} icon={userLocationIcon}>
@@ -66,23 +79,32 @@ export default function MarketMap({ markets, selectedMarketId, onSelectMarket, r
           </Marker>
         )}
 
-        {markets.map((market) => (
-          <Marker
-            key={market.id}
-            position={[market.lat, market.lng]}
-            icon={market.id === selectedMarketId ? activeMarketIcon : marketIcon}
-            eventHandlers={{ click: () => onSelectMarket?.(market.id) }}
-          >
-            <Popup>
-              {renderPopup ? renderPopup(market) : (
-                <>
-                  <p className="font-medium">{market.name}</p>
-                  <p className="text-xs text-text-secondary">{market.address}</p>
-                </>
-              )}
-            </Popup>
-          </Marker>
-        ))}
+        {markets.map((market) => {
+          const marketId = market._id || market.id
+          const lat = market.lat ?? market.location?.coordinates?.[1]
+          const lng = market.lng ?? market.location?.coordinates?.[0]
+          if (lat == null || lng == null) return null
+
+          const isSelected = marketId === selectedMarketId
+
+          return (
+            <Marker
+              key={marketId}
+              position={[lat, lng]}
+              icon={isSelected ? activeMarketIcon : marketIcon}
+              eventHandlers={{ click: () => onSelectMarket?.(marketId) }}
+            >
+              <Popup>
+                {renderPopup ? renderPopup(market) : (
+                  <>
+                    <p className="font-medium">{market.name}</p>
+                    <p className="text-xs text-text-secondary">{market.address}</p>
+                  </>
+                )}
+              </Popup>
+            </Marker>
+          )
+        })}
       </MapContainer>
     </div>
   )
