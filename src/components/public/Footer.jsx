@@ -1,6 +1,7 @@
 // src/components/public/Footer.jsx
 import { Link } from 'react-router-dom'
 import { Sprout, Send } from 'lucide-react'
+import { useAuthStore } from '@/stores/authStore'
 
   const FOOTER_COLUMNS = [
     { title: 'Explore', links: [{ label: 'Markets', to: '/markets' }, { label: 'Products', to: '/products' }, { label: 'How It Works', to: '/how-it-works' }, { label: 'About Us', to: '/about' }, { label: 'Contact', to: '/contact' }] },
@@ -9,8 +10,7 @@ import { Sprout, Send } from 'lucide-react'
   { title: 'Legal', links: [{ label: 'Privacy Policy', to: '/privacy' }, { label: 'Terms & Conditions', to: '/terms' }, { label: 'Refund Policy', to: '/refund' }] },
 ]
 
-// Simple inline brand icons — lucide-react dropped these (trademarked logos
-// aren't part of its generic UI icon set), so we keep small local SVGs instead.
+
 const SOCIAL_LINKS = [
   {
     label: 'Facebook',
@@ -44,6 +44,43 @@ const SOCIAL_LINKS = [
 ]
 
 export default function Footer() {
+  const user = useAuthStore((s) => s.user)
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+
+  const accountLinks = isAuthenticated
+    ? [
+        { label: 'My Orders', to: '/account/orders' },
+        { label: 'My Profile', to: '/account/profile' },
+        { label: 'Favorites', to: '/favorites' },
+      ]
+    : [
+        { label: 'Log In', to: '/login' },
+        { label: 'Create Account', to: '/signup' },
+      ]
+
+  const farmerLinks =
+    user?.role === 'farmer'
+      ? [
+          { label: 'Dashboard', to: '/farmer' },
+          { label: 'Manage Products', to: '/farmer/products' },
+          { label: 'Orders', to: '/farmer/orders' },
+        ]
+      : [{ label: 'Join as Farmer', to: '/signup' }]
+
+  const FOOTER_COLUMNS = [
+    {
+      title: 'Explore',
+      links: [
+        { label: 'Markets', to: '/markets' },
+        { label: 'Products', to: '/products' },
+        { label: 'How It Works', to: '/how-it-works' },
+        { label: 'About Us', to: '/about' },
+      ],
+    },
+    { title: 'Account', links: accountLinks },
+    { title: 'For Farmers', links: farmerLinks },
+  ]
+
   return (
     <footer className="bg-charcoal text-warm-cream">
       <div className="mx-auto max-w-7xl px-6 py-14">

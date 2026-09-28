@@ -14,6 +14,8 @@ import HowItWorksPage from '../pages/public/HowItWorksPage'
 import FavoritesPage from '../pages/public/FavoritesPage'
 import FarmerDetailPage from '../pages/public/FarmerDetailPage'
 import GuestOnlyRoute from '@/components/routing/GuestOnlyRoute'
+import ProfilePage from '@/pages/shared/ProfilePage'
+import RequireAuth from '@/components/routing/RequireAuth'
 
 function ComingSoon({ title }) {
     return (
@@ -32,11 +34,21 @@ export default function PublicRoutes() {
                 <Route path="markets/:id" element={<MarketDetailPage />} />
                 <Route path="products" element={<ProductsPage />} />
                 <Route path="products/:id" element={<ProductDetailPage />} />
-                <Route path="account/orders" element={<OrdersPage />} />
                 <Route path="cart" element={<CartPage />} />
                 <Route element={<GuestOnlyRoute />}>
                     <Route path="login" element={<LoginPage />} />
                     <Route path="signup" element={<RegisterPage />} />
+                </Route>
+                <Route element={<RequireAuth />}>
+                    <Route path="account/orders" element={<OrdersPage />} />
+                    <Route
+                        path="account/profile"
+                        element={
+                            <div className="mx-auto w-full max-w-2xl px-4 sm:px-6 py-8 sm:py-14">
+                                <ProfilePage />
+                            </div>
+                        }
+                    />
                 </Route>
                 <Route path="favorites" element={<FavoritesPage />} />
                 <Route path="farmers/:id" element={<FarmerDetailPage />} />
