@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 import { Sprout, Send } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
-  const FOOTER_COLUMNS = [
-    { title: 'Explore', links: [{ label: 'Markets', to: '/markets' }, { label: 'Products', to: '/products' }, { label: 'How It Works', to: '/how-it-works' }, { label: 'About Us', to: '/about' }, { label: 'Contact', to: '/contact' }] },
+const FOOTER_COLUMNS = [
+  { title: 'Explore', links: [{ label: 'Markets', to: '/markets' }, { label: 'Products', to: '/products' }, { label: 'How It Works', to: '/how-it-works' }, { label: 'About Us', to: '/about' }, { label: 'Contact', to: '/contact' }] },
   { title: 'Account', links: [{ label: 'Log In', to: '/login' }, { label: 'Create Account', to: '/signup' }, { label: 'Order History', to: '/account/orders' }, { label: 'Favorites', to: '/account/favorites' }] },
   { title: 'For Farmers', links: [{ label: 'Join as Farmer', to: '/farmer/register' }, { label: 'Manage Products', to: '/farmer/products' }, { label: 'Orders', to: '/farmer/orders' }, { label: 'Dashboard', to: '/farmer' }] },
   { title: 'Legal', links: [{ label: 'Privacy Policy', to: '/privacy' }, { label: 'Terms & Conditions', to: '/terms' }, { label: 'Refund Policy', to: '/refund' }] },
@@ -49,22 +49,22 @@ export default function Footer() {
 
   const accountLinks = isAuthenticated
     ? [
-        { label: 'My Orders', to: '/account/orders' },
-        { label: 'My Profile', to: '/account/profile' },
-        { label: 'Favorites', to: '/favorites' },
-      ]
+      { label: 'My Orders', to: '/account/orders' },
+      { label: 'My Profile', to: '/account/profile' },
+      { label: 'Favorites', to: '/favorites' },
+    ]
     : [
-        { label: 'Log In', to: '/login' },
-        { label: 'Create Account', to: '/signup' },
-      ]
+      { label: 'Log In', to: '/login' },
+      { label: 'Create Account', to: '/signup' },
+    ]
 
   const farmerLinks =
     user?.role === 'farmer'
       ? [
-          { label: 'Dashboard', to: '/farmer' },
-          { label: 'Manage Products', to: '/farmer/products' },
-          { label: 'Orders', to: '/farmer/orders' },
-        ]
+        { label: 'Dashboard', to: '/farmer' },
+        { label: 'Manage Products', to: '/farmer/products' },
+        { label: 'Orders', to: '/farmer/orders' },
+      ]
       : [{ label: 'Join as Farmer', to: '/signup' }]
 
   const FOOTER_COLUMNS = [
@@ -134,7 +134,20 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10">
-          <p className="text-xs text-muted-stone">© 2026 MarketLink. All rights reserved.</p>
+          <div className="text-center sm:text-left">
+            <p className="text-xs text-muted-stone">© 2026 MarketLink. All rights reserved.</p>
+            <p className="text-xs text-muted-stone mt-1">
+              Designed &amp; built by{' '}
+              <a
+                href="https://hamzaamir-portfolio.web.app/"
+                target="_blank"
+                rel="noopener"
+                className="text-warm-cream hover:text-white underline underline-offset-2"
+              >
+                Hamza Aamir
+              </a>
+            </p>
+          </div>
           <div className="flex items-center gap-3">
             {SOCIAL_LINKS.map(({ label, href, svg }) => (
               <a

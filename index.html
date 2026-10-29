@@ -1,25 +1,106 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#1F5C3A" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="MarketLink — Farm fresh, just a click away. Discover local farmers markets, pre-order fresh produce, and pick up in person."
-    />
-    <title>MarketLink | Farm Fresh Just a Click Away</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="theme-color" content="#1F5C3A" />
+
+  <title>MarketLink | Farm Fresh Just a Click Away</title>
+  <meta name="description"
+    content="MarketLink is a farmers market platform: find local markets, pre-order fresh produce from farmers and pick it up in person. Built by Hamza Aamir." />
+  <meta name="author" content="Hamza Aamir" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://marketlink-eta.vercel.app/" />
+  <link rel="author" href="https://hamzaamir-portfolio.web.app/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="MarketLink" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="MarketLink | Farm Fresh Just a Click Away" />
+  <meta property="og:description"
+    content="Discover local farmers markets, pre-order fresh produce and pick up in person." />
+  <meta property="og:url" content="https://marketlink-eta.vercel.app/" />
+  <meta property="og:image" content="https://marketlink-eta.vercel.app/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="MarketLink farmers market app preview" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MarketLink | Farm Fresh Just a Click Away" />
+  <meta name="twitter:description" content="Find local farmers markets and pre-order fresh produce." />
+  <meta name="twitter:image" content="https://marketlink-eta.vercel.app/og-image.jpg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://marketlink-eta.vercel.app/#app",
+          "name": "MarketLink",
+          "url": "https://marketlink-eta.vercel.app/",
+          "description": "A farmers market platform where customers discover local markets, pre-order fresh produce from farmers and pick up in person.",
+          "applicationCategory": "ShoppingApplication",
+          "operatingSystem": "Any (web browser)",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+          "creator": { "@id": "https://hamzaamir-portfolio.web.app/#person" },
+          "sameAs": ["https://github.com/x-hamza47/marketlink"]
+        },
+        {
+          "@type": "Person",
+          "@id": "https://hamzaamir-portfolio.web.app/#person",
+          "name": "Hamza Aamir",
+          "url": "https://hamzaamir-portfolio.web.app/",
+          "jobTitle": "Software Engineer",
+          "sameAs": [
+            "https://github.com/x-hamza47",
+            "https://www.linkedin.com/in/hamza-aamir-dev/"
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is MarketLink?",
+              "acceptedAnswer": { "@type": "Answer", "text": "MarketLink is a web platform that connects local farmers with customers. You can find farmers markets, browse fresh produce, pre-order and pick up in person." }
+            },
+            {
+              "@type": "Question",
+              "name": "Who built MarketLink?",
+              "acceptedAnswer": { "@type": "Answer", "text": "MarketLink was designed and built by Hamza Aamir, a software engineer. See more projects at https://hamzaamir-portfolio.web.app/." }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I sell on MarketLink?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Farmers can register an account, set up a stall profile, list products and manage incoming orders from the farmer dashboard." }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <noscript>
+    <h1>MarketLink: Farm Fresh, Just a Click Away</h1>
+    <p>Discover local farmers markets, pre-order fresh produce and pick up in person.
+      Built by <a href="https://hamzaamir-portfolio.web.app/">Hamza Aamir</a>.</p>
+  </noscript>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>
