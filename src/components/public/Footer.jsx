@@ -146,6 +146,15 @@ export default function Footer() {
               >
                 Hamza Aamir
               </a>
+              {' · '}
+              <a
+                href="https://github.com/x-hamza47/marketlink"
+                target="_blank"
+                rel="noopener"
+                className="hover:text-white underline underline-offset-2"
+              >
+                Source code
+              </a>
             </p>
           </div>
           <div className="flex items-center gap-3">
