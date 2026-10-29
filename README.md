@@ -1,5 +1,7 @@
 # MarketLink: Farmers Market Platform
 
+![MarketLink farmers market app preview](public/og-image.jpg)
+
 **MarketLink** is a web app that connects local farmers with customers. Find farmers markets near you, browse fresh produce, pre-order and pick up in person.
 
 **Live app:** https://marketlink-eta.vercel.app/
