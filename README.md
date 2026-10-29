@@ -1,16 +1,48 @@
-# React + Vite
+# MarketLink: Farmers Market Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**MarketLink** is a web app that connects local farmers with customers. Find farmers markets near you, browse fresh produce, pre-order and pick up in person.
 
-Currently, two official plugins are available:
+**Live app:** https://marketlink-eta.vercel.app/
+**Built by:** [Hamza Aamir](https://hamzaamir-portfolio.web.app/), software engineer
+**More projects:** https://hamzaamir-portfolio.web.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- Browse local farmers markets on a map
+- Search and filter fresh products
+- Cart, pre-orders and order history
+- Favorites, reviews and notifications
+- AI chat assistant
+- Farmer dashboard: stall profile, products and incoming orders
+- Admin dashboard: markets, categories, farmers, customers, orders, reviews, announcements and reports
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+React, Vite, Tailwind CSS, React Router, Zustand, TanStack Query, Axios
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Getting Started
+
+```bash
+git clone https://github.com/x-hamza47/marketlink.git
+cd marketlink
+npm install
+npm run dev
+```
+
+Create a `.env` file in the project root with your API URL (see `.env.example` if you add one).
+
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Build for production |
+| `npm run preview` | Preview the production build |
+
+## Author
+
+**Hamza Aamir**, software engineer building web, desktop and mobile apps.
+
+- Portfolio: https://hamzaamir-portfolio.web.app/
+- GitHub: https://github.com/x-hamza47
+- LinkedIn: https://www.linkedin.com/in/hamza-aamir-dev/
